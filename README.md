@@ -16,7 +16,7 @@ xIT is an AI-powered video editing application built with Electron, React, and R
 
 To run xIT, you need the following installed on your system:
 
-1.  **Node.js:** (v18 or later) - Required for the Electron app and local server.
+1.  **Node.js:** (v20 or later) - Required for the Electron app and local server.
 2.  **Python 3:** Required for local Whisper transcription (optional but recommended for free, accurate captions).
     *   Install `openai-whisper` package: `pip3 install openai-whisper`
 
