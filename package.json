@@ -1,7 +1,8 @@
 {
-  "name": "mocha-app",
+  "name": "xit",
+  "productName": "xIT",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "main": "electron/main.js",
   "type": "module",
   "dependencies": {
@@ -23,6 +24,10 @@
     "@remotion/three": "^4.0.409",
     "@types/formidable": "^3.4.6",
     "@types/three": "^0.182.0",
+    "cross-env": "^10.1.0",
+    "electron-is-dev": "^3.0.1",
+    "ffmpeg-static": "^5.3.0",
+    "ffprobe-static": "^3.1.0",
     "formdata-node": "^6.0.3",
     "formidable": "^3.5.4",
     "hono": "4.7.7",
@@ -47,15 +52,11 @@
     "@vitejs/plugin-react": "4.4.1",
     "autoprefixer": "^10.4.21",
     "concurrently": "^9.2.1",
-    "cross-env": "^10.1.0",
     "electron": "^40.6.1",
     "electron-builder": "^26.8.1",
-    "electron-is-dev": "^3.0.1",
     "eslint": "9.25.1",
     "eslint-plugin-react-hooks": "5.2.0",
     "eslint-plugin-react-refresh": "0.4.19",
-    "ffmpeg-static": "^5.3.0",
-    "ffprobe-static": "^3.1.0",
     "globals": "15.15.0",
     "knip": "^5.51.0",
     "postcss": "^8.5.3",
@@ -72,6 +73,38 @@
     "dev": "vite",
     "ffmpeg-server": "node scripts/local-ffmpeg-server.js",
     "knip": "knip",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "electron:build": "npm run build && electron-builder"
+  },
+  "build": {
+    "appId": "com.xit.app",
+    "productName": "xIT",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "extraResources": [
+      "scripts/**/*",
+      "src/remotion/**/*",
+      "remotion.config.ts",
+      "tsconfig.json",
+      "package.json",
+      "tailwind.config.js",
+      "postcss.config.js"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "asarUnpack": [
+      "**/node_modules/ffmpeg-static/**",
+      "**/node_modules/ffprobe-static/**"
+    ]
   }
 }

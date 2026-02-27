@@ -1,14 +1,20 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
-const path = require('path');
-const isDev = require('electron-is-dev');
-const { fork, spawn } = require('child_process');
-const fs = require('fs');
+import { app, BrowserWindow } from 'electron';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import isDev from 'electron-is-dev';
+import { fork } from 'child_process';
+import ffmpegStatic from 'ffmpeg-static';
+import ffprobeStatic from 'ffprobe-static';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let mainWindow;
 let serverProcess;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
+    title: "xIT",
     width: 1280,
     height: 800,
     webPreferences: {
@@ -38,13 +44,20 @@ function startServer() {
   // We'll ensure "scripts" folder is copied to resources in build config.
 
   // Set env vars for the server to know where ffmpeg binaries are
-  const ffmpegPath = require('ffmpeg-static');
-  const ffprobePath = require('ffprobe-static').path;
+  // When packaged with electron-builder, ffmpeg-static binaries are unpacked
+  // We need to point to the unpacked location
+  let ffmpegPath = ffmpegStatic;
+  let ffprobePath = ffprobeStatic.path;
+
+  if (!isDev) {
+      ffmpegPath = ffmpegPath.replace('app.asar', 'app.asar.unpacked');
+      ffprobePath = ffprobePath.replace('app.asar', 'app.asar.unpacked');
+  }
 
   const env = {
     ...process.env,
-    FFMPEG_PATH: ffmpegPath.replace('app.asar', 'app.asar.unpacked'),
-    FFPROBE_PATH: ffprobePath.replace('app.asar', 'app.asar.unpacked'),
+    FFMPEG_PATH: ffmpegPath,
+    FFPROBE_PATH: ffprobePath,
     ELECTRON_RUN: 'true'
   };
 
