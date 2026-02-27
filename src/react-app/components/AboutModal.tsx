@@ -1,4 +1,3 @@
-import React from 'react';
 import { X, ExternalLink, Github, Heart } from 'lucide-react';
 import xitLogo from '@/assets/xit_logo.png';
 import packageJson from '../../../package.json';

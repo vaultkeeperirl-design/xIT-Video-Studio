@@ -21,8 +21,7 @@ import {
   Mic,
   ScissorsLineDashed,
   Info,
-  BookOpen,
-  ChevronRight
+  BookOpen
 } from 'lucide-react';
 import xitLogo from '@/assets/xit_logo.png';
 
@@ -44,6 +43,28 @@ interface MenuBarProps {
   hasProject?: boolean;
   hasClips?: boolean;
 }
+
+type MenuItemAction = {
+  type?: undefined;
+  label: string;
+  icon: React.ReactNode;
+  action: () => void;
+  shortcut?: string;
+  disabled?: boolean;
+};
+
+type MenuItemSeparator = {
+  type: 'separator';
+};
+
+type MenuItem = MenuItemAction | MenuItemSeparator;
+
+type MenuCategory = {
+  id: string;
+  label: string;
+  icon: React.ReactNode;
+  items: MenuItem[];
+};
 
 export default function MenuBar({
   onImportAsset,
@@ -102,7 +123,7 @@ export default function MenuBar({
     setActiveMenu(null);
   };
 
-  const menuItems = [
+  const menuItems: MenuCategory[] = [
     {
       id: 'file',
       label: 'File',
