@@ -4,15 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>xIT Video Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --brand: #0dffff;
+            --bg-dark: #09090b;
+            --zinc-400: #a1a1aa;
+            --zinc-500: #71717a;
+            --zinc-800: #27272a;
+        }
+
         body {
             margin: 0;
             padding: 0;
-            background-color: #18181b; /* zinc-900 */
+            background-color: transparent;
             color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
@@ -20,71 +30,143 @@
             -webkit-app-region: drag;
             overflow: hidden;
         }
-        .container {
-            text-align: center;
+
+        .glass-container {
+            width: 460px;
+            height: 260px;
+            background: rgba(24, 24, 27, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(13, 255, 255, 0.15);
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow:
+                0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(13, 255, 255, 0.05);
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle background glow */
+        .glass-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(13, 255, 255, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .logo-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            filter: drop-shadow(0 0 15px rgba(13, 255, 255, 0.3));
+            animation: breathe 3s ease-in-out infinite;
+            z-index: 2;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(13, 255, 255, 0.3)); }
+            50% { transform: scale(1.05); filter: drop-shadow(0 0 25px rgba(13, 255, 255, 0.5)); }
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.025em;
+            background: linear-gradient(to bottom, #ffffff, #a1a1aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-text {
+            color: var(--brand);
+            -webkit-text-fill-color: var(--brand);
+        }
+
+        .version {
+            margin: 4px 0 0;
+            font-size: 12px;
+            color: var(--zinc-500);
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .loader-container {
+            margin-top: 32px;
+            width: 280px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        .logo {
-            width: 128px;
-            height: 128px;
-            margin-bottom: 24px;
-            filter: drop-shadow(0 0 20px rgba(13, 255, 255, 0.2));
-        }
-        h1 {
-            margin: 0;
-            font-size: 28px;
-            font-weight: 700;
-            color: #0dffff; /* brand color */
-            letter-spacing: -0.5px;
-        }
-        p {
-            margin: 8px 0 0;
-            font-size: 14px;
-            color: #a1a1aa; /* zinc-400 */
-            font-weight: 500;
-        }
+
         .loader {
-            margin-top: 40px;
-            width: 240px;
-            height: 4px;
-            background-color: #27272a; /* zinc-800 */
-            border-radius: 2px;
+            width: 100%;
+            height: 6px;
+            background-color: rgba(39, 39, 42, 0.5);
+            border-radius: 10px;
             overflow: hidden;
             position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
+
         .loader-bar {
             position: absolute;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: #0dffff;
+            background: linear-gradient(90deg, #00d1e6, #0dffff);
             transform-origin: left;
             transform: scaleX(0);
-            transition: transform 0.4s ease-out;
-            box-shadow: 0 0 10px #0dffff;
+            transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+            box-shadow: 0 0 12px rgba(13, 255, 255, 0.5);
         }
+
         .status {
-            font-size: 11px;
-            margin-top: 16px;
-            color: #71717a; /* zinc-500 */
+            font-size: 10px;
+            margin-top: 12px;
+            color: var(--zinc-400);
+            font-weight: 500;
             height: 14px;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <img src="icon.png" alt="xIT Video Studio Logo" class="logo">
-        <h1>xIT Video Studio</h1>
-        <p>Version 0.0.5</p>
-
-        <div class="loader">
-            <div id="loader-bar" class="loader-bar"></div>
+    <div class="glass-container">
+        <div class="logo-wrapper">
+            <img src="icon.png" alt="Logo" class="logo">
         </div>
 
-        <div id="status" class="status">Initializing application...</div>
+        <h1>xIT <span class="brand-text">Video Studio</span></h1>
+        <p class="version">Version 0.0.5</p>
+
+        <div class="loader-container">
+            <div class="loader">
+                <div id="loader-bar" class="loader-bar"></div>
+            </div>
+            <div id="status" class="status">Initializing...</div>
+        </div>
     </div>
 
     <script>
@@ -93,7 +175,7 @@
 
         if (window.electron) {
             window.electron.onProgress((value) => {
-                const scale = value / 100;
+                const scale = Math.min(Math.max(value / 100, 0), 1);
                 loaderBar.style.transform = `scaleX(${scale})`;
             });
 
@@ -104,10 +186,14 @@
             // Fallback for browser testing
             let progress = 0;
             const interval = setInterval(() => {
-                progress += 5;
+                progress += 2;
+                if (progress > 100) progress = 100;
                 loaderBar.style.transform = `scaleX(${progress / 100})`;
-                if (progress >= 100) clearInterval(interval);
-            }, 200);
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    statusText.innerText = "Ready";
+                }
+            }, 50);
         }
     </script>
 </body>
