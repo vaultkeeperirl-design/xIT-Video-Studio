@@ -2032,9 +2032,9 @@ export default function Home() {
 
         {/* Right Panel - AI Agents */}
         <ResizablePanel
-          defaultWidth={320}
-          minWidth={280}
-          maxWidth={500}
+          defaultWidth={450}
+          minWidth={380}
+          maxWidth={600}
           side="right"
         >
           <div className="h-full flex flex-col bg-zinc-900/80 backdrop-blur-sm">
