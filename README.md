@@ -2,7 +2,7 @@
   <img src="src/assets/xit_logo.png" width="100" alt="xIT Logo">
 </p>
 
-# <img width="20" alt="image" src="public/icon.png" /> xIT Video Studio
+# <img width="50" alt="image" src="public/icon.png" /> xIT Video Studio
 
 xIT is an AI-powered video editing application built with Electron, React, and Remotion. It leverages local FFmpeg processing and AI services (Gemini, OpenAI, Fal.ai) to provide a powerful video creation workflow.
 
