@@ -4,13 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>xIT Video Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --brand-color: #0dffff;
+            --brand-glow: rgba(13, 255, 255, 0.4);
+            --bg-color: #09090b;
+            --card-bg: #3f4144; /* Darker grey as seen in ref */
+            --zinc-400: #a1a1aa;
+            --zinc-500: #71717a;
+            --zinc-800: #27272a;
+        }
+
         body {
             margin: 0;
             padding: 0;
-            background-color: #18181b; /* zinc-900 */
+            background-color: transparent; /* Electron window is transparent */
             color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -19,77 +32,138 @@
             user-select: none;
             -webkit-app-region: drag;
             overflow: hidden;
+            position: relative;
         }
+
         .container {
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding: 40px;
+            border-radius: 40px; /* More rounded */
+            background: #3f4144;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            width: 420px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
+
+        @keyframes slideUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-wrapper {
+            position: relative;
+            margin-bottom: 28px;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
         .logo {
-            width: 128px;
-            height: 128px;
-            margin-bottom: 24px;
-            filter: drop-shadow(0 0 20px rgba(13, 255, 255, 0.2));
+            width: 100px;
+            height: 100px;
+            filter: drop-shadow(0 0 25px rgba(13, 255, 255, 0.35));
         }
+
         h1 {
             margin: 0;
             font-size: 28px;
-            font-weight: 700;
-            color: #0dffff; /* brand color */
-            letter-spacing: -0.5px;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            display: flex;
+            gap: 8px;
         }
-        p {
-            margin: 8px 0 0;
-            font-size: 14px;
-            color: #a1a1aa; /* zinc-400 */
-            font-weight: 500;
+
+        .text-grey {
+            color: #a1a1aa;
         }
+
+        .text-brand {
+            color: var(--brand-color);
+        }
+
+        .version {
+            margin: 10px 0 0;
+            font-size: 13px;
+            color: var(--zinc-500);
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .loader-container {
+            margin-top: 36px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
         .loader {
-            margin-top: 40px;
-            width: 240px;
-            height: 4px;
-            background-color: #27272a; /* zinc-800 */
-            border-radius: 2px;
+            width: 280px;
+            height: 7px;
+            background-color: #2a2c2f;
+            border-radius: 100px;
             overflow: hidden;
             position: relative;
         }
+
         .loader-bar {
             position: absolute;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: #0dffff;
+            background: var(--brand-color);
             transform-origin: left;
             transform: scaleX(0);
-            transition: transform 0.4s ease-out;
-            box-shadow: 0 0 10px #0dffff;
+            transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+            box-shadow: 0 0 15px var(--brand-color);
         }
+
         .status {
             font-size: 11px;
-            margin-top: 16px;
-            color: #71717a; /* zinc-500 */
-            height: 14px;
+            margin-top: 18px;
+            color: var(--zinc-400);
+            font-weight: 600;
+            height: 18px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <img src="icon.png" alt="xIT Video Studio Logo" class="logo">
-        <h1>xIT Video Studio</h1>
-        <p id="version-text">Version </p>
+    <div class="background-glow"></div>
 
-        <div class="loader">
-            <div id="loader-bar" class="loader-bar"></div>
+    <div class="container">
+        <div class="logo-wrapper">
+            <img src="icon.png" alt="xIT Logo" class="logo">
         </div>
 
-        <div id="status" class="status">Initializing application...</div>
+        <h1>
+            <span class="text-grey">xIT</span>
+            <span class="text-brand">Video Studio</span>
+        </h1>
+        <div id="version-text" class="version">VERSION 0.0.0</div>
+
+        <div class="loader-container">
+            <div class="loader">
+                <div id="loader-bar" class="loader-bar"></div>
+            </div>
+            <div id="status" class="status">INITIALIZING...</div>
+        </div>
     </div>
 
     <script>
         const loaderBar = document.getElementById('loader-bar');
         const statusText = document.getElementById('status');
+        const versionText = document.getElementById('version-text');
 
         if (window.electron) {
             window.electron.onProgress((value) => {
@@ -98,20 +172,24 @@
             });
 
             window.electron.onStatus((status) => {
-                statusText.innerText = status;
+                statusText.innerText = status.toUpperCase();
             });
 
             window.electron.onVersion((version) => {
-                document.getElementById('version-text').innerText = 'Version ' + version;
+                versionText.innerText = 'VERSION ' + version;
             });
         } else {
             // Fallback for browser testing
             let progress = 0;
             const interval = setInterval(() => {
-                progress += 5;
+                progress += 2;
                 loaderBar.style.transform = `scaleX(${progress / 100})`;
-                if (progress >= 100) clearInterval(interval);
-            }, 200);
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    statusText.innerText = "SYSTEM READY";
+                }
+            }, 100);
+            versionText.innerText = "VERSION 0.0.8";
         }
     </script>
 </body>
