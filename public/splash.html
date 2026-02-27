@@ -159,7 +159,7 @@
         </div>
 
         <h1>xIT <span class="brand-text">Video Studio</span></h1>
-        <p class="version">Version 0.0.5</p>
+        <p id="version-text" class="version">Version </p>
 
         <div class="loader-container">
             <div class="loader">
@@ -172,6 +172,7 @@
     <script>
         const loaderBar = document.getElementById('loader-bar');
         const statusText = document.getElementById('status');
+        const versionText = document.getElementById('version-text');
 
         if (window.electron) {
             window.electron.onProgress((value) => {
@@ -182,8 +183,13 @@
             window.electron.onStatus((status) => {
                 statusText.innerText = status;
             });
+
+            window.electron.onVersion((version) => {
+                versionText.innerText = 'Version ' + version;
+            });
         } else {
             // Fallback for browser testing
+            versionText.innerText = 'Version 0.0.7';
             let progress = 0;
             const interval = setInterval(() => {
                 progress += 2;

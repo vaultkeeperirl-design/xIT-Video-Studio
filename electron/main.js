@@ -42,6 +42,7 @@ function createSplashWindow() {
   splashWindow.once('ready-to-show', () => {
     splashWindow.show();
     splashWindow.center();
+    splashWindow.webContents.send('version', app.getVersion());
   });
 
   splashWindow.on('closed', () => {
