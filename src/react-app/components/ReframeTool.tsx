@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { User, RefreshCw, X, Check, Target, ToggleLeft, ToggleRight } from 'lucide-react';
-import { useProject, type Asset, type FaceTrack } from '@/react-app/hooks/useProject';
+import { useProject } from '@/react-app/hooks/useProject';
 
 interface ReframeToolProps {
   clipId: string | null;
@@ -17,7 +17,7 @@ export default function ReframeTool({
   activeFaceTrackId,
   isEnabled,
 }: ReframeToolProps) {
-  const { clips, assets, detectFaces, faceTrackingData, loading: projectLoading } = useProject();
+  const { clips, assets, detectFaces, faceTrackingData } = useProject();
   const [detecting, setDetecting] = useState(false);
 
   const selectedClip = useMemo(() => clips.find(c => c.id === clipId), [clips, clipId]);

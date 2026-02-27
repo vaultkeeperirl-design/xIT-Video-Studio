@@ -560,7 +560,6 @@ const VideoPreview = forwardRef<VideoPreviewHandle, VideoPreviewProps>(({
           if (isOverlay) {
              // For overlay videos, use a wrapper div for positioning/transform
              // Remove styles from video and apply to wrapper
-             const wrapperStyles = styles;
 
              // Video inside should fill the wrapper
              return renderHandles(
