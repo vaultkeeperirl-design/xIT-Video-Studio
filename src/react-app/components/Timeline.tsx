@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
-import { ZoomIn, ZoomOut, Play, Pause, SkipBack, Scissors, Trash2, Type, RectangleHorizontal, RectangleVertical, Link, Unlink, Film, Music } from 'lucide-react';
+import { ZoomIn, ZoomOut, Play, Pause, SkipBack, Scissors, Trash2, Type, RectangleHorizontal, RectangleVertical, Link, Unlink, Film, Music, Copy, RotateCcw, RotateCw, Volume2, Palette, Wand2, ScanFace, Settings } from 'lucide-react';
 import TimelineClip from './TimelineClip';
 import type { Track, TimelineClip as TimelineClipType, Asset, CaptionData } from '@/react-app/hooks/useProject';
 
@@ -27,6 +27,10 @@ interface TimelineProps {
   onDropAsset: (asset: Asset, trackId: string, time: number) => void;
   onSave: () => void;
   getCaptionData?: (clipId: string) => CaptionData | null;
+  onDuplicate?: () => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  onAutoReframe?: () => void;
 }
 
 const TRACK_HEIGHTS: Record<string, number> = {
@@ -65,6 +69,10 @@ export default function Timeline({
   onDropAsset,
   onSave,
   getCaptionData,
+  onDuplicate,
+  onUndo,
+  onRedo,
+  onAutoReframe,
 }: TimelineProps) {
   const [zoom, setZoom] = useState(1);
   const [isDraggingPlayhead, setIsDraggingPlayhead] = useState(false);
@@ -230,14 +238,14 @@ export default function Timeline({
           <div className="flex items-center gap-1">
             <button
               onClick={onStop}
-              className="p-1.5 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors"
+              className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors"
               title="Stop (go to start)"
             >
-              <SkipBack className="w-3.5 h-3.5" />
+              <SkipBack className="w-3 h-3" />
             </button>
             <button
               onClick={onPlayPause}
-              className={`p-1.5 rounded transition-colors ${
+              className={`p-1 rounded transition-colors ${
                 isPlaying
                   ? 'bg-brand-500 hover:bg-brand-600 text-zinc-900'
                   : 'bg-zinc-700 hover:bg-zinc-600'
@@ -245,9 +253,9 @@ export default function Timeline({
               title={isPlaying ? 'Pause' : 'Play'}
             >
               {isPlaying ? (
-                <Pause className="w-3.5 h-3.5" />
+                <Pause className="w-3 h-3" />
               ) : (
-                <Play className="w-3.5 h-3.5" />
+                <Play className="w-3 h-3" />
               )}
             </button>
           </div>
@@ -256,41 +264,41 @@ export default function Timeline({
           <div className="flex items-center gap-1 border-l border-zinc-700 pl-3 ml-1">
             <button
               onClick={onCutAtPlayhead}
-              className="p-1.5 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors"
+              className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors"
               title="Cut at playhead (split clip)"
             >
-              <Scissors className="w-3.5 h-3.5" />
+              <Scissors className="w-3 h-3" />
             </button>
             <button
               onClick={() => selectedClipId && onDeleteClip(selectedClipId)}
               disabled={!selectedClipId}
-              className="p-1.5 bg-zinc-700 hover:bg-red-600 disabled:opacity-40 disabled:hover:bg-zinc-700 rounded transition-colors"
+              className="p-1 bg-zinc-700 hover:bg-red-600 disabled:opacity-40 disabled:hover:bg-zinc-700 rounded transition-colors"
               title="Delete selected clip (Delete key)"
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash2 className="w-3 h-3" />
             </button>
             <button
               onClick={onAddText}
-              className="p-1.5 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors"
+              className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors"
               title="Add text overlay"
             >
-              <Type className="w-3.5 h-3.5" />
+              <Type className="w-3 h-3" />
             </button>
             <button
               onClick={onToggleAspectRatio}
-              className="p-1.5 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors"
+              className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors"
               title={`Currently ${aspectRatio === '16:9' ? '16:9 (horizontal)' : '9:16 (vertical)'} - click to switch`}
             >
               {aspectRatio === '16:9' ? (
-                <RectangleHorizontal className="w-3.5 h-3.5" />
+                <RectangleHorizontal className="w-3 h-3" />
               ) : (
-                <RectangleVertical className="w-3.5 h-3.5" />
+                <RectangleVertical className="w-3 h-3" />
               )}
             </button>
             <div className="w-px h-4 bg-zinc-600" />
             <button
               onClick={onToggleAutoSnap}
-              className={`p-1.5 rounded transition-colors ${
+              className={`p-1 rounded transition-colors ${
                 autoSnap
                   ? 'bg-brand-500/20 text-brand-400 hover:bg-brand-500/30'
                   : 'bg-zinc-700 hover:bg-zinc-600 text-zinc-400'
@@ -298,15 +306,78 @@ export default function Timeline({
               title={autoSnap ? 'Auto-snap ON: Clips shift when deleting' : 'Auto-snap OFF: Gaps remain when deleting'}
             >
               {autoSnap ? (
-                <Link className="w-3.5 h-3.5" />
+                <Link className="w-3 h-3" />
               ) : (
-                <Unlink className="w-3.5 h-3.5" />
+                <Unlink className="w-3 h-3" />
               )}
             </button>
           </div>
 
+          <div className="w-px h-4 bg-zinc-600" />
+          <button
+            onClick={onDuplicate}
+            className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Duplicate (D)"
+            disabled={!selectedClipId || !onDuplicate}
+          >
+            <Copy className="w-3 h-3" />
+          </button>
+          <button
+            onClick={onUndo}
+            className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Undo (⌘Z)"
+            disabled={!onUndo}
+          >
+            <RotateCcw className="w-3 h-3" />
+          </button>
+          <button
+            onClick={onRedo}
+            className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Redo (⌘⇧Z)"
+            disabled={!onRedo}
+          >
+            <RotateCw className="w-3 h-3" />
+          </button>
+          <div className="w-px h-4 bg-zinc-600" />
+          <button
+            className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Audio (A)"
+            disabled={true}
+          >
+            <Volume2 className="w-3 h-3" />
+          </button>
+          <button
+            className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Color (C)"
+            disabled={true}
+          >
+            <Palette className="w-3 h-3" />
+          </button>
+          <button
+            className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Effects (E)"
+            disabled={true}
+          >
+            <Wand2 className="w-3 h-3" />
+          </button>
+          <button
+            onClick={onAutoReframe}
+            className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Auto Reframe (F)"
+            disabled={!onAutoReframe}
+          >
+            <ScanFace className="w-3 h-3" />
+          </button>
+          <button
+            className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Settings (,)"
+            disabled={true}
+          >
+            <Settings className="w-3 h-3" />
+          </button>
+
           {/* Time display */}
-          <div className="flex items-center gap-2 text-xs">
+          <div className="flex items-center gap-2 text-xs ml-2 border-l border-zinc-700 pl-3">
             <span className="font-mono text-brand-400">{formatTime(currentTime)}</span>
             <span className="text-zinc-600">/</span>
             <span className="font-mono text-zinc-400">{formatTime(duration)}</span>
@@ -317,18 +388,18 @@ export default function Timeline({
         <div className="flex items-center gap-1">
           <button
             onClick={() => setZoom(Math.max(0.25, zoom - 0.25))}
-            className="p-1.5 bg-zinc-700 hover:bg-zinc-600 rounded text-xs transition-colors"
+            className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded text-xs transition-colors"
             title="Zoom out"
           >
-            <ZoomOut className="w-3.5 h-3.5" />
+            <ZoomOut className="w-3 h-3" />
           </button>
           <span className="text-xs text-zinc-400 w-12 text-center">{Math.round(zoom * 100)}%</span>
           <button
             onClick={() => setZoom(Math.min(4, zoom + 0.25))}
-            className="p-1.5 bg-zinc-700 hover:bg-zinc-600 rounded text-xs transition-colors"
+            className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded text-xs transition-colors"
             title="Zoom in"
           >
-            <ZoomIn className="w-3.5 h-3.5" />
+            <ZoomIn className="w-3 h-3" />
           </button>
         </div>
       </div>
