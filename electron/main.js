@@ -24,26 +24,26 @@ function createSplashWindow() {
     transparent: true,
     frame: false,
     alwaysOnTop: true,
+    show: false, // Don't show until ready to avoid flicker
     icon: iconPath,
     webPreferences: {
       nodeIntegration: false,
-      contextIsolation: true
+      contextIsolation: true,
+      preload: path.join(__dirname, 'splash-preload.js')
     }
   });
 
   if (isDev) {
     splashWindow.loadFile(path.join(__dirname, '../public/splash.html'));
   } else {
-    // In production, splash.html will be in the same folder as index.html
-    // because we will configure electron-builder to copy it there
-    // OR we can copy it to dist/client during build.
-    // For now, let's assume it ends up in dist/client/splash.html or resources.
-    // Actually, simple way: load from extraResources or adjacent to main bundle.
-    // Let's assume we copy public/splash.html to dist/client/splash.html
     splashWindow.loadFile(path.join(__dirname, '../dist/client/splash.html'));
   }
 
-  splashWindow.center();
+  splashWindow.once('ready-to-show', () => {
+    splashWindow.show();
+    splashWindow.center();
+  });
+
   splashWindow.on('closed', () => {
     splashWindow = null;
   });
@@ -79,9 +79,17 @@ function createWindow() {
   // Wait for the window to be ready to show
   mainWindow.once('ready-to-show', () => {
     if (splashWindow) {
-      splashWindow.close();
+      splashWindow.webContents.send('status', 'Launching...');
+      splashWindow.webContents.send('progress', 100);
+
+      // Slight delay for better UX
+      setTimeout(() => {
+        if (splashWindow) splashWindow.close();
+        mainWindow.show();
+      }, 800);
+    } else {
+      mainWindow.show();
     }
-    mainWindow.show();
   });
 
   mainWindow.on('closed', () => {
@@ -136,7 +144,21 @@ function startServer() {
   });
 
   serverProcess.stdout.on('data', (data) => {
-    console.log(`[Server]: ${data}`);
+    const output = data.toString();
+    console.log(`[Server]: ${output}`);
+
+    if (splashWindow) {
+      if (output.includes('Restoring sessions from disk')) {
+        splashWindow.webContents.send('status', 'Restoring sessions...');
+        splashWindow.webContents.send('progress', 30);
+      } else if (output.includes('Restored') && output.includes('sessions from disk')) {
+        splashWindow.webContents.send('status', 'Server ready');
+        splashWindow.webContents.send('progress', 60);
+      } else if (output.includes('Local FFmpeg server running')) {
+        splashWindow.webContents.send('status', 'Finalizing...');
+        splashWindow.webContents.send('progress', 80);
+      }
+    }
   });
 
   serverProcess.stderr.on('data', (data) => {
@@ -145,8 +167,8 @@ function startServer() {
 }
 
 app.on('ready', () => {
-  startServer();
   createSplashWindow();
+  startServer();
   createWindow();
 });
 

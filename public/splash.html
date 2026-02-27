@@ -62,17 +62,15 @@
             height: 100%;
             background-color: #0dffff;
             transform-origin: left;
-            animation: loading 2s infinite ease-in-out;
-        }
-        @keyframes loading {
-            0% { transform: scaleX(0); }
-            50% { transform: scaleX(0.5); }
-            100% { transform: scaleX(1); opacity: 0; }
+            transform: scaleX(0);
+            transition: transform 0.4s ease-out;
+            box-shadow: 0 0 10px #0dffff;
         }
         .status {
             font-size: 11px;
             margin-top: 16px;
             color: #71717a; /* zinc-500 */
+            height: 14px;
         }
     </style>
 </head>
@@ -80,13 +78,37 @@
     <div class="container">
         <img src="icon.png" alt="xIT Video Studio Logo" class="logo">
         <h1>xIT Video Studio</h1>
-        <p>Version 0.0.2</p>
+        <p>Version 0.0.5</p>
 
         <div class="loader">
-            <div class="loader-bar"></div>
+            <div id="loader-bar" class="loader-bar"></div>
         </div>
 
-        <div class="status">Initializing application...</div>
+        <div id="status" class="status">Initializing application...</div>
     </div>
+
+    <script>
+        const loaderBar = document.getElementById('loader-bar');
+        const statusText = document.getElementById('status');
+
+        if (window.electron) {
+            window.electron.onProgress((value) => {
+                const scale = value / 100;
+                loaderBar.style.transform = `scaleX(${scale})`;
+            });
+
+            window.electron.onStatus((status) => {
+                statusText.innerText = status;
+            });
+        } else {
+            // Fallback for browser testing
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 5;
+                loaderBar.style.transform = `scaleX(${progress / 100})`;
+                if (progress >= 100) clearInterval(interval);
+            }, 200);
+        }
+    </script>
 </body>
 </html>
