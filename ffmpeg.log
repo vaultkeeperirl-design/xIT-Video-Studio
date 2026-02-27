@@ -1,0 +1,43 @@
+
+> xit@0.0.12 ffmpeg-server
+> node scripts/local-ffmpeg-server.js
+
+[Server] No .dev.vars found at: /app/.dev.vars
+[Server] Restoring sessions from disk...
+[Server] Restored 0 sessions from disk
+
+🎬 Local FFmpeg server running at http://localhost:3333
+
+   Session API:
+   POST /session/upload - Upload video, get sessionId
+   GET  /session/:id/stream - Stream video for preview
+   GET  /session/:id/info - Get video info
+   POST /session/:id/process - Apply FFmpeg edit
+   POST /session/:id/remove-dead-air - Remove silence
+   POST /session/:id/chapters - Generate chapters
+   GET  /session/:id/download - Download final video
+   DELETE /session/:id - Clean up session
+
+   Multi-Asset API:
+   POST /session/:id/assets - Upload asset (video/image/audio)
+   GET  /session/:id/assets - List all assets
+   DELETE /session/:id/assets/:assetId - Delete asset
+   GET  /session/:id/assets/:assetId/thumbnail - Get thumbnail
+   GET  /session/:id/assets/:assetId/stream - Stream asset
+
+   Project API:
+   GET  /session/:id/project - Get project state
+   PUT  /session/:id/project - Save project state
+   POST /session/:id/render - Render project to video
+   GET  /session/:id/renders/preview - Download preview
+   GET  /session/:id/renders/export - Download export
+
+   AI/Auto GIF API:
+   POST /session/:id/transcribe-and-extract - Transcribe video, extract keywords, fetch GIFs
+   POST /session/:id/generate-broll - Generate AI B-roll images from transcript
+   POST /session/:id/generate-animation - AI-generated custom animation (Gemini + Remotion)
+   POST /session/:id/analyze-for-animation - Analyze video, return concept for approval
+   POST /session/:id/generate-contextual-animation - Content-aware animation (transcribes video first)
+   POST /session/:id/process-asset - Apply FFmpeg command to an asset
+
+   GET /health - Health check

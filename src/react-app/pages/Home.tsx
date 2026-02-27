@@ -13,6 +13,7 @@ import ResizablePanel from '@/react-app/components/ResizablePanel';
 import ResizableVerticalPanel from '@/react-app/components/ResizableVerticalPanel';
 import TimelineTabs from '@/react-app/components/TimelineTabs';
 import MenuBar from '@/react-app/components/MenuBar';
+import Toolbar from '@/react-app/components/Toolbar';
 import AboutModal from '@/react-app/components/AboutModal';
 import ReframeTool from '@/react-app/components/ReframeTool';
 import { useProject, Asset, TimelineClip, CaptionStyle } from '@/react-app/hooks/useProject';
@@ -375,7 +376,7 @@ export default function Home() {
   }, [refreshAssets]);
 
   // Handle drag start from asset library
-  const handleAssetDragStart = useCallback((_asset: Asset) => {
+  const handleAssetDragStart = useCallback(() => {
     // Asset drag is handled by the browser's native drag-drop
   }, []);
 
@@ -1962,6 +1963,15 @@ export default function Home() {
               </div>
             )}
           </div>
+
+          {/* Toolbar */}
+          <Toolbar
+            onSplit={handleCutAtPlayhead}
+            onDelete={() => selectedClipId && handleDeleteClip(selectedClipId)}
+            onDuplicate={() => {}}
+            onUndo={() => {}}
+            onRedo={() => {}}
+          />
 
           {/* Timeline - Resizable height */}
           <ResizableVerticalPanel

@@ -10,17 +10,31 @@ import {
   Wand2,
 } from 'lucide-react';
 
-export default function Toolbar() {
+interface ToolbarProps {
+  onSplit?: () => void;
+  onDuplicate?: () => void;
+  onDelete?: () => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+}
+
+export default function Toolbar({
+  onSplit,
+  onDuplicate,
+  onDelete,
+  onUndo,
+  onRedo,
+}: ToolbarProps) {
   const tools = [
-    { icon: Scissors, label: 'Split', shortcut: 'S' },
-    { icon: Copy, label: 'Duplicate', shortcut: 'D' },
-    { icon: Trash2, label: 'Delete', shortcut: 'Del' },
-    { icon: RotateCcw, label: 'Undo', shortcut: '⌘Z' },
-    { icon: RotateCw, label: 'Redo', shortcut: '⌘⇧Z' },
-    { icon: Volume2, label: 'Audio', shortcut: 'A' },
-    { icon: Palette, label: 'Color', shortcut: 'C' },
-    { icon: Wand2, label: 'Effects', shortcut: 'E' },
-    { icon: Settings, label: 'Settings', shortcut: ',' },
+    { icon: Scissors, label: 'Split', shortcut: 'S', onClick: onSplit },
+    { icon: Copy, label: 'Duplicate', shortcut: 'D', onClick: onDuplicate },
+    { icon: Trash2, label: 'Delete', shortcut: 'Del', onClick: onDelete },
+    { icon: RotateCcw, label: 'Undo', shortcut: '⌘Z', onClick: onUndo },
+    { icon: RotateCw, label: 'Redo', shortcut: '⌘⇧Z', onClick: onRedo },
+    { icon: Volume2, label: 'Audio', shortcut: 'A', onClick: undefined },
+    { icon: Palette, label: 'Color', shortcut: 'C', onClick: undefined },
+    { icon: Wand2, label: 'Effects', shortcut: 'E', onClick: undefined },
+    { icon: Settings, label: 'Settings', shortcut: ',', onClick: undefined },
   ];
 
   return (
@@ -36,13 +50,16 @@ interface ToolButtonProps {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   shortcut: string;
+  onClick?: () => void;
 }
 
-function ToolButton({ icon: Icon, label, shortcut }: ToolButtonProps) {
+function ToolButton({ icon: Icon, label, shortcut, onClick }: ToolButtonProps) {
   return (
     <button
-      className="group relative flex flex-col items-center gap-1 px-3 py-2 rounded-lg hover:bg-zinc-800/50 transition-colors"
+      onClick={onClick}
+      className="group relative flex flex-col items-center gap-1 px-3 py-2 rounded-lg hover:bg-zinc-800/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       title={`${label} (${shortcut})`}
+      disabled={!onClick}
     >
       <Icon className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" />
       <span className="text-[10px] text-zinc-500 group-hover:text-zinc-300 transition-colors">

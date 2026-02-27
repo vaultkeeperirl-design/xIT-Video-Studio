@@ -1,0 +1,134 @@
+
+> xit@0.0.12 lint
+> eslint .
+
+
+/app/src/react-app/components/AIPromptPanel.tsx
+   223:11  error  '_' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  1144:74  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/src/react-app/components/ClipPropertiesPanel.tsx
+  38:9   warning  The 'transform' logical expression could make the dependencies of useCallback Hook (at line 42) change on every render. To fix this, wrap the initialization of 'transform' in its own useMemo() Hook  react-hooks/exhaustive-deps
+  38:9   warning  The 'transform' logical expression could make the dependencies of useCallback Hook (at line 46) change on every render. To fix this, wrap the initialization of 'transform' in its own useMemo() Hook  react-hooks/exhaustive-deps
+  38:9   warning  The 'transform' logical expression could make the dependencies of useCallback Hook (at line 50) change on every render. To fix this, wrap the initialization of 'transform' in its own useMemo() Hook  react-hooks/exhaustive-deps
+  38:9   warning  The 'transform' logical expression could make the dependencies of useCallback Hook (at line 54) change on every render. To fix this, wrap the initialization of 'transform' in its own useMemo() Hook  react-hooks/exhaustive-deps
+  40:29  error    React Hook "useCallback" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?          react-hooks/rules-of-hooks
+  44:32  error    React Hook "useCallback" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?          react-hooks/rules-of-hooks
+  48:32  error    React Hook "useCallback" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?          react-hooks/rules-of-hooks
+  52:28  error    React Hook "useCallback" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?          react-hooks/rules-of-hooks
+  56:23  error    React Hook "useCallback" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?          react-hooks/rules-of-hooks
+
+/app/src/react-app/components/GifSearchPanel.tsx
+  40:6  warning  React Hook useEffect has a missing dependency: 'loadTrending'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/app/src/react-app/components/VideoPreview.tsx
+  467:25  error  React Hook "useMemo" is called conditionally. React Hooks must be called in the exact same order in every component render  react-hooks/rules-of-hooks
+
+/app/src/react-app/hooks/useFFmpeg.ts
+  284:11  error  'args' is never reassigned. Use 'const' instead  prefer-const
+
+/app/src/react-app/hooks/useProject.ts
+  249:6   warning  React Hook useEffect has a missing dependency: 'session'. Either include it or remove the dependency array                react-hooks/exhaustive-deps
+  326:6   warning  React Hook useCallback has a missing dependency: 'setSession'. Either include it or remove the dependency array           react-hooks/exhaustive-deps
+  679:6   warning  React Hook useCallback has a missing dependency: 'defaultCaptionStyle'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  717:6   warning  React Hook useCallback has a missing dependency: 'defaultCaptionStyle'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  971:15  error    Empty block statement                                                                                                     no-empty
+  976:6   warning  React Hook useCallback has a missing dependency: 'setSession'. Either include it or remove the dependency array           react-hooks/exhaustive-deps
+
+/app/src/react-app/hooks/useVideoSession.ts
+   60:17  error  Empty block statement  no-empty
+  294:15  error  Empty block statement  no-empty
+
+/app/src/react-app/pages/Home.tsx
+  379:45  error  '_asset' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/src/remotion/DynamicAnimation.tsx
+     1:47   error    'useCallback' is defined but never used                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+     2:93   error    'Video' is defined but never used                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+     2:116  error    'staticFile' is defined but never used                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+     5:25   error    'getAvailableEmojis' is defined but never used                                                                                                                                                                                          @typescript-eslint/no-unused-vars
+     8:19   error    'Scene3DConfig' is defined but never used                                                                                                                                                                                               @typescript-eslint/no-unused-vars
+   206:46   error    'duration' is defined but never used                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+   416:11   error    'fps' is assigned a value but never used                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+   537:60   error    'isEntry' is assigned a value but never used                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+   576:7    error    'style' is never reassigned. Use 'const' instead                                                                                                                                                                                        prefer-const
+   596:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   597:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   603:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   604:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   610:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   611:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   617:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   618:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   624:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   625:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   626:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   633:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   634:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   635:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   642:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   643:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   651:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   652:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   660:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   661:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   662:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   669:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   670:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+   671:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+  1204:9    warning  The 'stats' logical expression could make the dependencies of useMemo Hook (at line 1250) change on every render. Move it inside the useMemo callback. Alternatively, wrap the initialization of 'stats' in its own useMemo() Hook      react-hooks/exhaustive-deps
+  1409:29   error    'fps' is assigned a value but never used                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+  1412:9    error    'progress' is assigned a value but never used                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+  1415:41   error    'i' is defined but never used                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+  1464:29   error    'fps' is assigned a value but never used                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+  1636:34   error    'width' is assigned a value but never used                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+  1636:41   error    'height' is assigned a value but never used                                                                                                                                                                                             @typescript-eslint/no-unused-vars
+  1990:11   error    'fps' is assigned a value but never used                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+  2077:16   error    'durationInFrames' is assigned a value but never used                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  2077:34   error    'width' is assigned a value but never used                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+  2086:9    error    'dividerPosition' is assigned a value but never used                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+  2259:16   error    'durationInFrames' is assigned a value but never used                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  2299:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+  2395:9    error    'frame' is assigned a value but never used                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+  2396:11   error    'fps' is assigned a value but never used                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+  2396:16   error    'durationInFrames' is assigned a value but never used                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  2397:9    warning  The 'shapes' logical expression could make the dependencies of useMemo Hook (at line 2439) change on every render. Move it inside the useMemo callback. Alternatively, wrap the initialization of 'shapes' in its own useMemo() Hook    react-hooks/exhaustive-deps
+  2513:16   error    'durationInFrames' is assigned a value but never used                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  2514:28   error    'setUseAnimatedEmoji' is assigned a value but never used                                                                                                                                                                                @typescript-eslint/no-unused-vars
+  2551:7    error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+  2611:39   error    Unexpected any. Specify a different type                                                                                                                                                                                                @typescript-eslint/no-explicit-any
+  2623:9    error    'frame' is assigned a value but never used                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+  2624:11   error    'fps' is assigned a value but never used                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+  2625:9    warning  The 'emojis' logical expression could make the dependencies of useMemo Hook (at line 2671) change on every render. Move it inside the useMemo callback. Alternatively, wrap the initialization of 'emojis' in its own useMemo() Hook    react-hooks/exhaustive-deps
+  2662:13   error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+  2742:16   error    'durationInFrames' is assigned a value but never used                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  2809:9    error    'gifFrame' is assigned a value but never used                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+  2841:9    error    'frame' is assigned a value but never used                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+  2842:11   error    'fps' is assigned a value but never used                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+  2842:16   error    'width' is assigned a value but never used                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+  2842:23   error    'height' is assigned a value but never used                                                                                                                                                                                             @typescript-eslint/no-unused-vars
+  2843:9    warning  The 'gifs' logical expression could make the dependencies of useMemo Hook (at line 2890) change on every render. Move it inside the useMemo callback. Alternatively, wrap the initialization of 'gifs' in its own useMemo() Hook        react-hooks/exhaustive-deps
+  2881:13   error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+  3000:16   error    'durationInFrames' is assigned a value but never used                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  3069:9    error    'frame' is assigned a value but never used                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+  3070:11   error    'fps' is assigned a value but never used                                                                                                                                                                                                @typescript-eslint/no-unused-vars
+  3070:16   error    'width' is assigned a value but never used                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+  3070:23   error    'height' is assigned a value but never used                                                                                                                                                                                             @typescript-eslint/no-unused-vars
+  3071:9    warning  The 'lotties' logical expression could make the dependencies of useMemo Hook (at line 3130) change on every render. Move it inside the useMemo callback. Alternatively, wrap the initialization of 'lotties' in its own useMemo() Hook  react-hooks/exhaustive-deps
+  3121:13   error    Unexpected lexical declaration in case block                                                                                                                                                                                            no-case-declarations
+
+/app/src/remotion/components/Scene3D.tsx
+    5:16  error  'Center' is defined but never used                     @typescript-eslint/no-unused-vars
+  113:9   error  Unexpected lexical declaration in case block           no-case-declarations
+  245:9   error  'frame' is assigned a value but never used             @typescript-eslint/no-unused-vars
+  246:11  error  'fps' is assigned a value but never used               @typescript-eslint/no-unused-vars
+  246:16  error  'durationInFrames' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/app/src/shared/types.ts
+  1:8  error  'z' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/src/worker/index.ts
+  14:68  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 103 problems (88 errors, 15 warnings)
+  2 errors and 0 warnings potentially fixable with the `--fix` option.
