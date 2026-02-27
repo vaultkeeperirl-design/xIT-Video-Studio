@@ -115,7 +115,7 @@ export default function SettingsModal({ onClose, onSave, initialSettingsPromise 
 
                 <ApiKeyInput
                   label="Fal.ai Key"
-                  description="Required for video/image generation (DiCaprio & Picasso)"
+                  description="Required for AI Video Lab and AI Image Lab"
                   id="FAL_KEY"
                   isSet={status.FAL_KEY}
                   value={values.FAL_KEY}

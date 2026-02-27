@@ -24,7 +24,8 @@ function createSplashWindow() {
     transparent: true,
     frame: false,
     alwaysOnTop: true,
-    show: false, // Don't show until ready to avoid flicker
+    show: true,
+    backgroundColor: '#3f4144',
     icon: iconPath,
     webPreferences: {
       nodeIntegration: false,
@@ -40,7 +41,6 @@ function createSplashWindow() {
   }
 
   splashWindow.once('ready-to-show', () => {
-    splashWindow.show();
     splashWindow.center();
     splashWindow.webContents.send('version', app.getVersion());
   });

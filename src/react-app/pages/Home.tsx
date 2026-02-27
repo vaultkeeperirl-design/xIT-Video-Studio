@@ -5,8 +5,8 @@ import AssetLibrary from '@/react-app/components/AssetLibrary';
 import ClipPropertiesPanel from '@/react-app/components/ClipPropertiesPanel';
 import CaptionPropertiesPanel from '@/react-app/components/CaptionPropertiesPanel';
 import AIPromptPanel from '@/react-app/components/AIPromptPanel';
-import PicassoPanel from '@/react-app/components/PicassoPanel';
-import DiCaprioPanel from '@/react-app/components/DiCaprioPanel';
+import AIImageLabPanel from '@/react-app/components/AIImageLabPanel';
+import AIVideoLabPanel from '@/react-app/components/AIVideoLabPanel';
 import GifSearchPanel from '@/react-app/components/GifSearchPanel';
 import SettingsModal from '@/react-app/components/SettingsModal';
 import ResizablePanel from '@/react-app/components/ResizablePanel';
@@ -36,7 +36,7 @@ export default function Home() {
   const [previewAssetId, setPreviewAssetId] = useState<string | null>(null);
   const [aspectRatio, setAspectRatio] = useState<'16:9' | '9:16'>('16:9');
   const [autoSnap, setAutoSnap] = useState(true); // Ripple delete mode - shift clips when deleting
-  const [activeAgent, setActiveAgent] = useState<'director' | 'picasso' | 'dicaprio'>('director');
+  const [activeAgent, setActiveAgent] = useState<'director' | 'image-lab' | 'video-lab'>('director');
   const [showGifSearch, setShowGifSearch] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
@@ -681,7 +681,7 @@ export default function Home() {
     // Get current project state from server
     const projectResponse = await fetch(`http://localhost:3333/session/${session.sessionId}/project`);
     const projectData = await projectResponse.json();
-    let currentClips: TimelineClip[] = projectData.clips || [];
+    const currentClips: TimelineClip[] = projectData.clips || [];
 
     // Process all cuts by directly manipulating the clips array
     // This avoids React state batching issues
@@ -1920,29 +1920,29 @@ export default function Home() {
                 }`}
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                Director
+                Smart Assistant
               </button>
               <button
-                onClick={() => setActiveAgent('picasso')}
+                onClick={() => setActiveAgent('image-lab')}
                 className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium transition-colors ${
-                  activeAgent === 'picasso'
+                  activeAgent === 'image-lab'
                     ? 'text-brand-300 border-b-2 border-brand-300 bg-zinc-800/30'
                     : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/20'
                 }`}
               >
                 <Palette className="w-3.5 h-3.5" />
-                Picasso
+                AI Image Lab
               </button>
               <button
-                onClick={() => setActiveAgent('dicaprio')}
+                onClick={() => setActiveAgent('video-lab')}
                 className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium transition-colors ${
-                  activeAgent === 'dicaprio'
+                  activeAgent === 'video-lab'
                     ? 'text-zinc-300 border-b-2 border-zinc-300 bg-zinc-800/30'
                     : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/20'
                 }`}
               >
                 <Film className="w-3.5 h-3.5" />
-                DiCaprio
+                AI Video Lab
               </button>
             </div>
 
@@ -1981,8 +1981,8 @@ export default function Home() {
                   editTabClips={activeTabId !== 'main' ? timelineTabs.find(t => t.id === activeTabId)?.clips : undefined}
                 />
               </div>
-              <div className={`absolute inset-0 ${activeAgent === 'picasso' ? '' : 'hidden'}`}>
-                <PicassoPanel
+              <div className={`absolute inset-0 ${activeAgent === 'image-lab' ? '' : 'hidden'}`}>
+                <AIImageLabPanel
                   sessionId={session?.sessionId ?? null}
                   onImageGenerated={(assetId) => {
                     console.log('Image generated:', assetId);
@@ -1990,8 +1990,8 @@ export default function Home() {
                   onRefreshAssets={refreshAssets}
                 />
               </div>
-              <div className={`absolute inset-0 ${activeAgent === 'dicaprio' ? '' : 'hidden'}`}>
-                <DiCaprioPanel
+              <div className={`absolute inset-0 ${activeAgent === 'video-lab' ? '' : 'hidden'}`}>
+                <AIVideoLabPanel
                   sessionId={session?.sessionId ?? null}
                   assets={assets}
                   onVideoGenerated={(assetId) => {

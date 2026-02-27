@@ -220,7 +220,7 @@ export default function AIPromptPanel({
   applyStatus,
   hasVideo,
   clips = [],
-  tracks: _tracks = [],
+  tracks: _ = [],
   assets = [],
   currentTime = 0,
   selectedClipId,
@@ -871,9 +871,9 @@ export default function AIPromptPanel({
   };
 
   // ===========================================
-  // DIRECTOR: Intelligent workflow routing
+  // SMART ASSISTANT: Intelligent workflow routing
   // ===========================================
-  // The Director analyzes the user's prompt AND context to determine
+  // The Smart Assistant analyzes the user's prompt AND context to determine
   // which workflow is most appropriate. It doesn't use priority - it
   // uses understanding of what the user wants.
 
@@ -893,7 +893,7 @@ export default function AIPromptPanel({
     | 'ffmpeg-edit'         // Direct FFmpeg video manipulation
     | 'unknown';            // Need to ask for clarification
 
-  interface DirectorContext {
+  interface AssistantContext {
     prompt: string;
     isOnEditTab: boolean;
     editTabHasAnimation: boolean;
@@ -908,7 +908,7 @@ export default function AIPromptPanel({
     selectedAiAnimationAssetId?: string;
   }
 
-  const determineWorkflow = (ctx: DirectorContext): WorkflowType => {
+  const determineWorkflow = (ctx: AssistantContext): WorkflowType => {
     const lower = ctx.prompt.toLowerCase();
 
     // ============================================
@@ -1974,7 +1974,7 @@ export default function AIPromptPanel({
     setChatHistory((prev) => [...prev, { type: 'user', text: displayMessage }]);
 
     // ===========================================
-    // DIRECTOR: Determine the appropriate workflow
+    // SMART ASSISTANT: Determine the appropriate workflow
     // ===========================================
     const isManualTab = editTabAssetId?.startsWith('edit-') ?? false;
     const animationAsset = (!isManualTab && editTabAssetId) ? assets.find(a => a.id === editTabAssetId) : null;
@@ -2008,7 +2008,7 @@ export default function AIPromptPanel({
     const selectedClipAsset = selectedClip ? assets.find(a => a.id === selectedClip.assetId) : null;
     const selectedClipIsAiAnimation = !!(selectedClipAsset?.aiGenerated);
 
-    const directorContext: DirectorContext = {
+    const assistantContext: AssistantContext = {
       prompt: userMessage,
       isOnEditTab: activeTabId !== 'main',
       editTabHasAnimation,
@@ -2022,23 +2022,23 @@ export default function AIPromptPanel({
       selectedAiAnimationAssetId: selectedClipIsAiAnimation ? selectedClipAsset?.id : undefined,
     };
 
-    const workflow = determineWorkflow(directorContext);
-    console.log('[Director] Determined workflow:', workflow);
-    console.log('[Director] Full context:', {
+    const workflow = determineWorkflow(assistantContext);
+    console.log('[Assistant] Determined workflow:', workflow);
+    console.log('[Assistant] Full context:', {
       prompt: userMessage.substring(0, 50) + '...',
-      isOnEditTab: directorContext.isOnEditTab,
-      editTabHasAnimation: directorContext.editTabHasAnimation,
+      isOnEditTab: assistantContext.isOnEditTab,
+      editTabHasAnimation: assistantContext.editTabHasAnimation,
       isOnAnimationEditTab,
       editTabHasRemotionAnimation,
       editTabAssetId,
       activeTabId,
-      hasTimeRange: directorContext.hasTimeRange,
+      hasTimeRange: assistantContext.hasTimeRange,
       animationAssetFound: !!animationAsset,
       animationAssetAiGenerated: animationAsset?.aiGenerated,
       // AI animations on main timeline
-      hasAiAnimationsOnTimeline: directorContext.hasAiAnimationsOnTimeline,
-      selectedClipIsAiAnimation: directorContext.selectedClipIsAiAnimation,
-      selectedAiAnimationAssetId: directorContext.selectedAiAnimationAssetId,
+      hasAiAnimationsOnTimeline: assistantContext.hasAiAnimationsOnTimeline,
+      selectedClipIsAiAnimation: assistantContext.selectedClipIsAiAnimation,
+      selectedAiAnimationAssetId: assistantContext.selectedAiAnimationAssetId,
       editTabV1Context: editTabV1Context ? {
         assetId: editTabV1Context.assetId,
         filename: editTabV1Context.filename,
@@ -2055,13 +2055,13 @@ export default function AIPromptPanel({
     // 1. Selected AI animation on main timeline (selectedAiAnimationAssetId)
     // 2. V1 clip's asset ID in edit tab (for manual tabs with dragged animations)
     // 3. editTabAssetId (for tabs created via "Edit in new tab")
-    const animationAssetIdToEdit = directorContext.selectedAiAnimationAssetId ||
+    const animationAssetIdToEdit = assistantContext.selectedAiAnimationAssetId ||
                                    editTabV1Context?.assetId ||
                                    editTabAssetId;
     if (workflow === 'edit-animation' && animationAssetIdToEdit && onEditAnimation) {
-      console.log('[Director] Editing animation with asset ID:', animationAssetIdToEdit);
-      console.log('[Director] Source: selectedAiAnimation=%s, editTabV1Context=%s, editTabAssetId=%s',
-        directorContext.selectedAiAnimationAssetId,
+      console.log('[Assistant] Editing animation with asset ID:', animationAssetIdToEdit);
+      console.log('[Assistant] Source: selectedAiAnimation=%s, editTabV1Context=%s, editTabAssetId=%s',
+        assistantContext.selectedAiAnimationAssetId,
         editTabV1Context?.assetId,
         editTabAssetId);
       await handleEditAnimationWorkflow(userMessage, animationAssetIdToEdit);

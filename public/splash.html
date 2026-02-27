@@ -6,7 +6,7 @@
     <title>xIT Video Studio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <style>
         :root {
             --brand-color: #0dffff;
@@ -21,9 +21,9 @@
         body {
             margin: 0;
             padding: 0;
-            background-color: transparent; /* Electron window is transparent */
+            background-color: #3f4144; /* Match card-bg for immediate visibility */
             color: #ffffff;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, 'Inter';
             display: flex;
             flex-direction: column;
             align-items: center;

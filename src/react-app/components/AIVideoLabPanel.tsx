@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Film, Send, Loader2, Video, X, Zap, Plus, Play, Wand2, Eraser, Image as ImageIcon } from 'lucide-react';
 
-type DiCaprioSkill = 'animate' | 'restyle' | 'remove-bg';
+type AIVideoLabSkill = 'animate' | 'restyle' | 'remove-bg';
 
 interface AttachedAsset {
   id: string;
@@ -26,10 +26,10 @@ interface ChatMessage {
   awaitingImageSelection?: boolean;
   awaitingVideoSelection?: boolean;
   pendingPrompt?: string;
-  pendingSkill?: DiCaprioSkill;
+  pendingSkill?: AIVideoLabSkill;
 }
 
-interface DiCaprioPanelProps {
+interface AIVideoLabPanelProps {
   sessionId: string | null;
   assets: Array<{
     id: string;
@@ -44,9 +44,9 @@ interface DiCaprioPanelProps {
 }
 
 const SKILLS = [
-  { id: 'animate' as DiCaprioSkill, label: 'Animate', icon: Play, description: 'Image → Video', requiresType: 'image' },
-  { id: 'restyle' as DiCaprioSkill, label: 'Restyle', icon: Wand2, description: 'Transform style', requiresType: 'video' },
-  { id: 'remove-bg' as DiCaprioSkill, label: 'Remove BG', icon: Eraser, description: 'Remove background', requiresType: 'video' },
+  { id: 'animate' as AIVideoLabSkill, label: 'Animate', icon: Play, description: 'Image → Video', requiresType: 'image' },
+  { id: 'restyle' as AIVideoLabSkill, label: 'Restyle', icon: Wand2, description: 'Transform style', requiresType: 'video' },
+  { id: 'remove-bg' as AIVideoLabSkill, label: 'Remove BG', icon: Eraser, description: 'Remove background', requiresType: 'video' },
 ];
 
 const QUICK_ACTIONS = [
@@ -56,12 +56,12 @@ const QUICK_ACTIONS = [
   { icon: Film, text: 'Add camera movement' },
 ];
 
-export default function DiCaprioPanel({
+export default function AIVideoLabPanel({
   sessionId,
   assets,
   onVideoGenerated,
   onRefreshAssets,
-}: DiCaprioPanelProps) {
+}: AIVideoLabPanelProps) {
   const [prompt, setPrompt] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -69,7 +69,7 @@ export default function DiCaprioPanel({
   const [showQuickActions, setShowQuickActions] = useState(false);
   const [showAssetPicker, setShowAssetPicker] = useState(false);
   const [attachedAsset, setAttachedAsset] = useState<AttachedAsset | null>(null);
-  const [activeSkill, setActiveSkill] = useState<DiCaprioSkill | null>(null);
+  const [activeSkill, setActiveSkill] = useState<AIVideoLabSkill | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const quickActionsRef = useRef<HTMLDivElement>(null);
@@ -136,7 +136,7 @@ export default function DiCaprioPanel({
   };
 
   // Detect skill from user message
-  const detectSkill = (text: string): DiCaprioSkill | null => {
+  const detectSkill = (text: string): AIVideoLabSkill | null => {
     const lower = text.toLowerCase();
 
     if (lower.includes('remove background') || lower.includes('remove bg') ||
@@ -276,7 +276,7 @@ export default function DiCaprioPanel({
   };
 
   // Handle asset selection from picker in message
-  const handleAssetSelectFromMessage = (assetId: string, skill: DiCaprioSkill, prompt?: string) => {
+  const handleAssetSelectFromMessage = (assetId: string, skill: AIVideoLabSkill, prompt?: string) => {
     const asset = assets.find(a => a.id === assetId);
     if (!asset) return;
 
@@ -405,7 +405,7 @@ export default function DiCaprioPanel({
           <div className="w-8 h-8 bg-gradient-to-br from-zinc-400 to-slate-500 rounded-lg flex items-center justify-center">
             <Film className="w-4 h-4" />
           </div>
-          <h2 className="font-semibold">DiCaprio</h2>
+          <h2 className="font-semibold">AI Video Lab</h2>
         </div>
         <p className="text-xs text-zinc-400">
           Transform images and videos with AI
