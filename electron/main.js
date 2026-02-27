@@ -13,10 +13,15 @@ let mainWindow;
 let serverProcess;
 
 function createWindow() {
+  const iconPath = isDev
+    ? path.join(__dirname, '../public/icon.png')
+    : path.join(__dirname, '../dist/icon.png');
+
   mainWindow = new BrowserWindow({
     title: "xIT Video Studio",
     width: 1280,
     height: 800,
+    icon: iconPath,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false, // For easier IPC initially, consider security later
