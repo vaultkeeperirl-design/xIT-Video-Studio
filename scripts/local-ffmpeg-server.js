@@ -2080,14 +2080,24 @@ async function handleProjectRender(req, res, sessionId) {
       }
     }
 
+    // Handle vertical export (9:16)
+    // Add a final scaling filter to the output chain
+    let finalFilterComplex = filterParts.join(';');
+    if (options.isVertical) {
+      // Add scale and crop filters to the video output
+      // Scale to cover 1080x1920 (force_original_aspect_ratio=increase)
+      // Then crop to exactly 1080x1920
+      finalFilterComplex += `;[vout]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920[vout_vertical]`;
+    }
+
     // Build final command
     const outputPath = join(session.rendersDir, isPreview ? 'preview.mp4' : `export-${Date.now()}.mp4`);
 
     const ffmpegArgs = [
       '-y',
       ...inputs,
-      '-filter_complex', filterParts.join(';'),
-      '-map', '[vout]',
+      '-filter_complex', finalFilterComplex,
+      '-map', options.isVertical ? '[vout_vertical]' : '[vout]',
     ];
 
     if (audioFilter) {
@@ -2101,7 +2111,18 @@ async function handleProjectRender(req, res, sessionId) {
       ffmpegArgs.push('-c:v', 'libx264', '-preset', 'medium', '-crf', '18');
     }
 
-    ffmpegArgs.push('-c:a', 'aac', '-b:a', '192k');
+    // Add audio mapping if present
+    if (audioFilter) {
+      ffmpegArgs.push('-c:a', 'aac', '-b:a', '192k');
+    } else {
+      // If no audio filter, still need codec args if we're doing complex filter?
+      // Actually, if no audioFilter, we probably have no audio output stream mapped above
+      // But let's keep the codec args just in case, though usually they go with the mapping.
+      // Wait, the original code had it unconditional. Let's just make it conditional to avoid duplicates if audioFilter is true.
+      // Actually, looking at the code, we pushed '-map', '[aout]' inside the `if (audioFilter)` block earlier.
+      // So we should only add audio codec args if audioFilter is true OR if we're not doing complex filter (which we always are here).
+      // Let's just remove the duplicate unconditional one.
+    }
     ffmpegArgs.push('-movflags', '+faststart');
     ffmpegArgs.push('-t', totalDuration.toString());
     ffmpegArgs.push(outputPath);

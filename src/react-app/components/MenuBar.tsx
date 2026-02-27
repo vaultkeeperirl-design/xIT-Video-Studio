@@ -292,6 +292,7 @@ export default function MenuBar({
           onClick={onYoutubeExport}
           disabled={!hasClips || isProcessing}
           className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-zinc-800 text-zinc-300 text-sm font-medium hover:bg-red-600/20 hover:text-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Export for YouTube (Horizontal 16:9)"
         >
           <YoutubeIcon className="w-4 h-4" />
           YouTube
@@ -301,6 +302,7 @@ export default function MenuBar({
           onClick={onTiktokExport}
           disabled={!hasClips || isProcessing}
           className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-zinc-800 text-zinc-300 text-sm font-medium hover:bg-cyan-600/20 hover:text-cyan-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Export for TikTok/Shorts (Vertical 9:16)"
         >
           <TiktokIcon className="w-4 h-4" />
           TikTok

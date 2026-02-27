@@ -536,6 +536,17 @@ export default function Home() {
     });
   }, [clips, updateClip]);
 
+  // Handle resizing layer from video preview
+  const handleLayerResize = useCallback((layerId: string, scale: number) => {
+    const clip = clips.find(c => c.id === layerId);
+    if (!clip) return;
+
+    const currentTransform = clip.transform || {};
+    updateClip(layerId, {
+      transform: { ...currentTransform, scale }
+    });
+  }, [clips, updateClip]);
+
   // Handle selecting layer from video preview
   const handleLayerSelect = useCallback((layerId: string) => {
     setSelectedClipId(layerId);
@@ -1561,12 +1572,30 @@ export default function Home() {
 
   // Handle TikTok Export
   const handleTiktokExport = useCallback(async () => {
-    const downloadUrl = await handleExport();
-    if (downloadUrl) {
-      alert('Video rendered successfully! Starting upload to TikTok...');
-      // Future implementation: actual upload logic
+    if (clips.length === 0) {
+      alert('Add some clips to the timeline first');
+      return;
     }
-  }, [handleExport]);
+
+    try {
+      // Pass isVertical: true to force 9:16 export with center crop
+      const downloadUrl = await renderProject(false, { isVertical: true });
+      if (downloadUrl) {
+        // Trigger download
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = 'export-tiktok.mp4';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        alert('Video rendered successfully! Starting upload to TikTok...');
+      }
+    } catch (error) {
+      console.error('TikTok Export failed:', error);
+      alert(`TikTok Export failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }, [clips.length, renderProject]);
 
   // Edit an existing animation with a new prompt
   const handleEditAnimation = useCallback(async (
@@ -1846,6 +1875,7 @@ export default function Home() {
                 aspectRatio={aspectRatio}
                 onLayerMove={handleLayerMove}
                 onLayerSelect={handleLayerSelect}
+                onLayerResize={handleLayerResize}
                 selectedLayerId={selectedClipId}
               />
             ) : clips.length > 0 ? (

@@ -33,6 +33,7 @@ interface VideoPreviewProps {
   aspectRatio?: '16:9' | '9:16';
   onLayerMove?: (layerId: string, x: number, y: number) => void;
   onLayerSelect?: (layerId: string) => void;
+  onLayerResize?: (layerId: string, scale: number) => void;
   selectedLayerId?: string | null;
 }
 
@@ -86,6 +87,7 @@ const VideoPreview = forwardRef<VideoPreviewHandle, VideoPreviewProps>(({
   aspectRatio = '16:9',
   onLayerMove,
   onLayerSelect,
+  onLayerResize,
   selectedLayerId,
 }, ref) => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -94,6 +96,8 @@ const VideoPreview = forwardRef<VideoPreviewHandle, VideoPreviewProps>(({
   const containerRef = useRef<HTMLDivElement>(null);
   const [draggingLayer, setDraggingLayer] = useState<string | null>(null);
   const [dragStart, setDragStart] = useState<{ x: number; y: number; layerX: number; layerY: number } | null>(null);
+  const [resizingLayer, setResizingLayer] = useState<string | null>(null);
+  const [resizeStart, setResizeStart] = useState<{ x: number; y: number; initialScale: number } | null>(null);
 
   // Find the base video layer (V1) for audio/playback control
   const foundBaseLayer = layers.find(l => l.trackId === 'V1' && l.type === 'video');
@@ -227,23 +231,48 @@ const VideoPreview = forwardRef<VideoPreviewHandle, VideoPreviewProps>(({
     onLayerSelect?.(layer.id);
   }, [onLayerSelect]);
 
-  // Handle mouse move for dragging
+  // Handle mouse down on resize handle
+  const handleResizeMouseDown = useCallback((e: React.MouseEvent, layer: ClipLayer) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setResizingLayer(layer.id);
+    setResizeStart({
+      x: e.clientX,
+      y: e.clientY,
+      initialScale: layer.transform?.scale || (layer.trackId === 'V1' ? 1 : 0.2), // Default scale based on track
+    });
+  }, []);
+
+  // Handle mouse move for dragging/resizing
   useEffect(() => {
-    if (!draggingLayer || !dragStart) return;
+    if (!draggingLayer && !resizingLayer) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      const deltaX = e.clientX - dragStart.x;
-      const deltaY = e.clientY - dragStart.y;
+      if (draggingLayer && dragStart) {
+        const deltaX = e.clientX - dragStart.x;
+        const deltaY = e.clientY - dragStart.y;
 
-      const newX = dragStart.layerX + deltaX;
-      const newY = dragStart.layerY + deltaY;
+        const newX = dragStart.layerX + deltaX;
+        const newY = dragStart.layerY + deltaY;
 
-      onLayerMove?.(draggingLayer, newX, newY);
+        onLayerMove?.(draggingLayer, newX, newY);
+      } else if (resizingLayer && resizeStart) {
+        // Calculate resize based on mouse movement (simplified uniform scaling)
+        const deltaX = e.clientX - resizeStart.x;
+        // Sensitivity factor
+        const scaleChange = deltaX * 0.005;
+        const newScale = Math.max(0.1, resizeStart.initialScale + scaleChange);
+
+        onLayerResize?.(resizingLayer, newScale);
+      }
     };
 
     const handleMouseUp = () => {
       setDraggingLayer(null);
       setDragStart(null);
+      setResizingLayer(null);
+      setResizeStart(null);
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -253,12 +282,12 @@ const VideoPreview = forwardRef<VideoPreviewHandle, VideoPreviewProps>(({
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [draggingLayer, dragStart, onLayerMove]);
+  }, [draggingLayer, dragStart, resizingLayer, resizeStart, onLayerMove, onLayerResize]);
 
   // Aspect ratio styles
   const isVertical = aspectRatio === '9:16';
-  // Use object-contain to show full video without cropping
-  const videoFitClass = 'object-contain';
+  // Use object-cover to show full video with center cropping for vertical preview
+  const videoFitClass = isVertical ? 'object-cover' : 'object-contain';
 
   // Container classes based on aspect ratio
   const containerClass = isVertical
@@ -305,10 +334,88 @@ const VideoPreview = forwardRef<VideoPreviewHandle, VideoPreviewProps>(({
       {overlayLayers.map((layer, index) => {
         const isOverlay = layer.trackId !== 'V1';
         const isDragging = draggingLayer === layer.id;
+        const isResizing = resizingLayer === layer.id;
         const isSelected = selectedLayerId === layer.id;
         const styles = getTransformStyles(layer.transform, index + 2, isDragging);
 
+        // Common wrapper for interactivity handles
+        const renderHandles = (content: React.ReactNode) => {
+          if (!isOverlay) return content;
+
+          return (
+            <div
+              key={layer.id}
+              className="absolute cursor-grab active:cursor-grabbing group/layer"
+              style={{
+                ...styles,
+                width: layer.type === 'image' ? `${(layer.transform?.scale || 0.2) * 100}%` : 'auto',
+                // For images, we position explicitly. For videos, styles handle it.
+                // Reconciling the two approaches:
+                // Video layers use full container size and transform origin for positioning.
+                // Image layers currently use the "lower middle" default logic in the code below.
+                // To support consistent resize handles, we need a consistent container.
+              }}
+              onMouseDown={(e) => handleLayerMouseDown(e, layer)}
+            >
+              {content}
+
+              {/* Selection/Hover indicator */}
+              {(isSelected || isDragging || isResizing) && (
+                <>
+                  <div className="absolute inset-0 ring-2 ring-brand-500 rounded-lg pointer-events-none" />
+
+                  {/* Resize Handle - Bottom Right */}
+                  <div
+                    className="absolute -bottom-2 -right-2 w-6 h-6 bg-brand-500 rounded-full cursor-nwse-resize flex items-center justify-center shadow-lg z-50 hover:scale-110 transition-transform"
+                    onMouseDown={(e) => handleResizeMouseDown(e, layer)}
+                  >
+                    <div className="w-2 h-2 bg-white rounded-full" />
+                  </div>
+                </>
+              )}
+
+              {/* Drag handle indicator */}
+              {!isDragging && !isResizing && isSelected && (
+                <div className="absolute top-2 right-2 p-1.5 bg-black/60 rounded text-white/70 pointer-events-none">
+                  <Move className="w-3 h-3" />
+                </div>
+              )}
+            </div>
+          );
+        };
+
         if (layer.type === 'video') {
+          // For video overlays, we need to wrap differently because the video tag handles styles
+          // But to add handles, we need a wrapper
+          // Current implementation applies styles directly to video tag.
+          // Let's wrap it for consistency if it's an overlay
+
+          if (isOverlay) {
+             // For overlay videos, use a wrapper div for positioning/transform
+             // Remove styles from video and apply to wrapper
+             const wrapperStyles = styles;
+
+             // Video inside should fill the wrapper
+             return renderHandles(
+               <video
+                 ref={(el) => {
+                   if (el) overlayVideoRefs.current.set(layer.id, el);
+                   else overlayVideoRefs.current.delete(layer.id);
+                 }}
+                 src={layer.url}
+                 className="w-full h-full object-cover rounded-lg shadow-lg pointer-events-none"
+                 playsInline
+                 preload="auto"
+                 muted
+                 onLoadedData={(e) => {
+                   const video = e.currentTarget;
+                   if (layer.clipTime !== undefined) video.currentTime = layer.clipTime;
+                   if (isPlaying) video.play().catch(() => {});
+                 }}
+               />
+             );
+          }
+
           return (
             <video
               key={`${layer.id}-${layer.url}`}
@@ -346,15 +453,23 @@ const VideoPreview = forwardRef<VideoPreviewHandle, VideoPreviewProps>(({
         if (layer.type === 'image') {
           // For overlay images (V2, V3), use explicit sizing instead of fill-then-scale
           if (isOverlay) {
+            // Re-calculate positioning logic to match what was there before
+            // but now wrapped in renderHandles which applies the styles
+
+            // The previous logic for image overlays:
             const scale = layer.transform?.scale || 0.2;
             const xOffset = layer.transform?.x || 0;
             const yOffset = layer.transform?.y || 0;
             const baseZIndex = (styles.zIndex as number) || 0;
 
+            // We need to construct a style object that matches the previous behavior
+            // but allows our wrapper to work.
+            // Previous: width % based on scale, absolute positioning with calc()
+
             return (
               <div
                 key={layer.id}
-                className="absolute cursor-grab active:cursor-grabbing"
+                className="absolute cursor-grab active:cursor-grabbing group/layer"
                 style={{
                   width: `${scale * 100}%`,
                   top: `calc(70% + ${yOffset}px)`,
@@ -371,12 +486,24 @@ const VideoPreview = forwardRef<VideoPreviewHandle, VideoPreviewProps>(({
                   className="w-full h-auto rounded-lg shadow-lg pointer-events-none"
                   draggable={false}
                 />
-                {/* Selection indicator */}
-                {isSelected && (
-                  <div className="absolute inset-0 ring-2 ring-brand-500 rounded-lg pointer-events-none" />
+
+                {/* Selection indicator & Handles */}
+                {(isSelected || isDragging || isResizing) && (
+                  <>
+                    <div className="absolute inset-0 ring-2 ring-brand-500 rounded-lg pointer-events-none" />
+
+                    {/* Resize Handle */}
+                    <div
+                      className="absolute -bottom-2 -right-2 w-6 h-6 bg-brand-500 rounded-full cursor-nwse-resize flex items-center justify-center shadow-lg z-50 hover:scale-110 transition-transform"
+                      onMouseDown={(e) => handleResizeMouseDown(e, layer)}
+                    >
+                      <div className="w-2 h-2 bg-white rounded-full" />
+                    </div>
+                  </>
                 )}
+
                 {/* Drag handle indicator */}
-                {!isDragging && (
+                {!isDragging && !isResizing && isSelected && (
                   <div className="absolute top-2 right-2 p-1.5 bg-black/60 rounded text-white/70 pointer-events-none">
                     <Move className="w-3 h-3" />
                   </div>
@@ -458,10 +585,10 @@ const VideoPreview = forwardRef<VideoPreviewHandle, VideoPreviewProps>(({
         <span>{baseVideoLayer ? 'video' : layers[0]?.type}</span>
       </div>
 
-      {/* Dragging indicator */}
-      {draggingLayer && (
+      {/* Dragging/Resizing indicator */}
+      {(draggingLayer || resizingLayer) && (
         <div className="absolute bottom-3 left-3 text-xs text-brand-400 bg-black/70 px-2 py-1 rounded z-50">
-          Dragging...
+          {draggingLayer ? 'Dragging...' : 'Resizing...'}
         </div>
       )}
     </div>

@@ -804,7 +804,7 @@ export function useProject() {
 
   // Render project
   // Uses refs to always get latest state
-  const renderProject = useCallback(async (preview = false): Promise<string> => {
+  const renderProject = useCallback(async (preview = false, options?: { isVertical?: boolean }): Promise<string> => {
     if (!session) throw new Error('No session');
 
     setLoading(true);
@@ -825,7 +825,10 @@ export function useProject() {
       const response = await fetch(`${LOCAL_FFMPEG_URL}/session/${session.sessionId}/render`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ preview }),
+        body: JSON.stringify({
+          preview,
+          isVertical: options?.isVertical, // Pass the vertical flag
+        }),
       });
 
       if (!response.ok) {
