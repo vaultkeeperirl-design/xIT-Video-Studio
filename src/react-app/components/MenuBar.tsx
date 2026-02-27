@@ -55,6 +55,8 @@ interface MenuBarProps {
   onToggleReframe?: () => void;
   canUndo?: boolean;
   canRedo?: boolean;
+  onUndo?: () => void;
+  onRedo?: () => void;
   isProcessing?: boolean;
   hasProject?: boolean;
   hasClips?: boolean;
@@ -99,6 +101,8 @@ export default function MenuBar({
   onToggleReframe,
   canUndo = false,
   canRedo = false,
+  onUndo,
+  onRedo,
   isProcessing = false,
   hasProject = false,
   hasClips = false,
@@ -161,8 +165,8 @@ export default function MenuBar({
       label: 'Edit',
       icon: <Edit className="w-4 h-4" />,
       items: [
-        { label: 'Undo', icon: <Undo className="w-4 h-4" />, action: () => setActiveMenu(null), disabled: !canUndo, shortcut: 'Ctrl+Z' },
-        { label: 'Redo', icon: <Redo className="w-4 h-4" />, action: () => setActiveMenu(null), disabled: !canRedo, shortcut: 'Ctrl+Y' },
+        { label: 'Undo', icon: <Undo className="w-4 h-4" />, action: () => { onUndo?.(); setActiveMenu(null); }, disabled: !canUndo, shortcut: 'Ctrl+Z' },
+        { label: 'Redo', icon: <Redo className="w-4 h-4" />, action: () => { onRedo?.(); setActiveMenu(null); }, disabled: !canRedo, shortcut: 'Ctrl+Y' },
         { type: 'separator' },
         { label: 'Delete Selected', icon: <Trash2 className="w-4 h-4" />, action: () => { onDeleteSelected(); setActiveMenu(null); }, shortcut: 'Del' },
         { label: 'Split Clip', icon: <Scissors className="w-4 h-4" />, action: () => { onSplitClip(); setActiveMenu(null); }, shortcut: 'Ctrl+K' },

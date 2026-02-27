@@ -27,6 +27,7 @@ interface TimelineProps {
   onDropAsset: (asset: Asset, trackId: string, time: number) => void;
   onSave: () => void;
   getCaptionData?: (clipId: string) => CaptionData | null;
+  onDragStart?: () => void;
 }
 
 const TRACK_HEIGHTS: Record<string, number> = {
@@ -65,6 +66,7 @@ export default function Timeline({
   onDropAsset,
   onSave,
   getCaptionData,
+  onDragStart,
 }: TimelineProps) {
   const [zoom, setZoom] = useState(1);
   const [isDraggingPlayhead, setIsDraggingPlayhead] = useState(false);
@@ -488,6 +490,7 @@ export default function Timeline({
                           onMove={onMoveClip}
                           onResize={onResizeClip}
                           onDelete={onDeleteClip}
+                          onDragStart={onDragStart}
                           onDragEnd={onSave}
                           isCaption={isCaption}
                           captionPreview={captionPreview}

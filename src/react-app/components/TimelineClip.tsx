@@ -11,6 +11,7 @@ interface TimelineClipProps {
   onSelect: (id: string) => void;
   onMove: (id: string, newStart: number) => void;
   onResize: (id: string, newInPoint: number, newOutPoint: number, newStart?: number) => void;
+  onDragStart?: () => void;
   onDragEnd: () => void;
   onDelete: (id: string) => void;
   captionPreview?: string;  // For caption clips - first few words
@@ -46,6 +47,7 @@ const TimelineClip = memo(function TimelineClip({
   onSelect,
   onMove,
   onResize,
+  onDragStart,
   onDragEnd,
   onDelete,
   captionPreview,
@@ -80,17 +82,20 @@ const TimelineClip = memo(function TimelineClip({
 
     if (clickX < handleWidth) {
       // Left resize handle
+      onDragStart?.();
       setIsResizingLeft(true);
       setDragStartX(e.clientX);
       setInitialInPoint(clip.inPoint);
       setInitialStart(clip.start);
     } else if (clickX > rect.width - handleWidth) {
       // Right resize handle
+      onDragStart?.();
       setIsResizingRight(true);
       setDragStartX(e.clientX);
       setInitialOutPoint(clip.outPoint);
     } else {
       // Main body - dragging
+      onDragStart?.();
       setIsDragging(true);
       setDragStartX(e.clientX);
       setInitialStart(clip.start);

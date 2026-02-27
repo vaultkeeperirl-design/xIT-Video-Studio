@@ -131,6 +131,8 @@ function loadSessionFromStorage(): SessionInfo | null {
   return null;
 }
 
+import { useHistory } from './useHistory';
+
 export function useProject() {
   // Initialize session from localStorage if available
   const [session, setSessionInternal] = useState<SessionInfo | null>(loadSessionFromStorage);
@@ -143,7 +145,18 @@ export function useProject() {
     { id: 'A1', type: 'audio', name: 'A1', order: 4 },  // Audio track 1
     { id: 'A2', type: 'audio', name: 'A2', order: 5 },  // Audio track 2
   ]);
-  const [clips, setClips] = useState<TimelineClip[]>([]);
+
+  // Use history hook for clips
+  const {
+    state: clips,
+    set: setClipsInternal,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    snapshot: snapshotClips
+  } = useHistory<TimelineClip[]>([]);
+
   const [captionData, setCaptionData] = useState<Record<string, CaptionData>>({});
   const [faceTrackingData, setFaceTrackingData] = useState<Record<string, FaceTrack[]>>({});
 
@@ -236,7 +249,7 @@ export function useProject() {
           localStorage.removeItem(SESSION_STORAGE_KEY);
           setSessionInternal(null);
           setAssets([]);
-          setClips([]);
+          setClipsInternal([]);
           setCaptionData({});
         }
       } catch (error) {
@@ -334,8 +347,9 @@ export function useProject() {
     });
 
     setAssets(prev => prev.filter(a => a.id !== assetId));
-    setClips(prev => prev.filter(c => c.assetId !== assetId));
-  }, [session]);
+    snapshotClips(); // Snapshot before deleting associated clips
+    setClipsInternal((prev: TimelineClip[]) => prev.filter(c => c.assetId !== assetId));
+  }, [session, snapshotClips, setClipsInternal]);
 
   // Get asset stream URL
   const getAssetStreamUrl = useCallback((assetId: string): string | null => {
@@ -418,20 +432,29 @@ export function useProject() {
       outPoint: outPoint ?? clipDuration,
     };
 
-    setClips(prev => [...prev, clip]);
+    snapshotClips(); // Snapshot before adding
+    setClipsInternal((prev: TimelineClip[]) => [...prev, clip]);
     return clip;
-  }, [assets]);
+  }, [assets, snapshotClips, setClipsInternal]);
 
   // Update clip
   const updateClip = useCallback((clipId: string, updates: Partial<TimelineClip>): void => {
-    setClips(prev => prev.map(c =>
+    // Determine if this is a transient update (move/resize) or a commit update
+    // For now, we assume direct calls to updateClip might be commits if they are not from drag
+    // But typically move/resize call this repeatedly.
+    // The consumer (Timeline/Home) should handle snapshotting on drag start.
+    // If this is a property change (e.g. transform), we might want to snapshot.
+    // However, the plan says: "Continuous Actions... call setClipsInternal directly".
+    // So we will just update state here.
+    setClipsInternal((prev: TimelineClip[]) => prev.map((c: TimelineClip) =>
       c.id === clipId ? { ...c, ...updates } : c
     ));
-  }, []);
+  }, [setClipsInternal]);
 
   // Delete clip (with optional ripple/autosnap to shift subsequent clips)
   const deleteClip = useCallback((clipId: string, ripple: boolean = false): void => {
-    setClips(prev => {
+    snapshotClips(); // Snapshot before deleting
+    setClipsInternal((prev: TimelineClip[]) => {
       const clipToDelete = prev.find(c => c.id === clipId);
       if (!clipToDelete) return prev.filter(c => c.id !== clipId);
 
@@ -444,7 +467,7 @@ export function useProject() {
       const deletedEnd = clipToDelete.start + clipToDelete.duration;
       const gapDuration = clipToDelete.duration;
 
-      return filtered.map(c => {
+      return filtered.map((c: TimelineClip) => {
         // Only shift clips on the same track that start at or after the deleted clip's end
         if (c.trackId === clipToDelete.trackId && c.start >= deletedEnd) {
           return {
@@ -455,11 +478,13 @@ export function useProject() {
         return c;
       });
     });
-  }, []);
+  }, [snapshotClips, setClipsInternal]);
 
   // Move clip
   const moveClip = useCallback((clipId: string, newStart: number, newTrackId?: string): void => {
-    setClips(prev => prev.map(c => {
+    // This is a continuous action, so NO snapshot here.
+    // Snapshot should be called by onDragStart in the UI.
+    setClipsInternal((prev: TimelineClip[]) => prev.map((c: TimelineClip) => {
       if (c.id !== clipId) return c;
       return {
         ...c,
@@ -467,11 +492,12 @@ export function useProject() {
         trackId: newTrackId ?? c.trackId,
       };
     }));
-  }, []);
+  }, [setClipsInternal]);
 
   // Resize clip (change in/out points or duration)
   const resizeClip = useCallback((clipId: string, newInPoint: number, newOutPoint: number): void => {
-    setClips(prev => prev.map(c => {
+    // Continuous action, no snapshot.
+    setClipsInternal((prev: TimelineClip[]) => prev.map(c => {
       if (c.id !== clipId) return c;
       const newDuration = newOutPoint - newInPoint;
       return {
@@ -481,7 +507,7 @@ export function useProject() {
         duration: newDuration,
       };
     }));
-  }, []);
+  }, [setClipsInternal]);
 
   // Split clip at a specific time, creating two clips
   const splitClip = useCallback((clipId: string, splitTime: number): string | null => {
@@ -511,9 +537,10 @@ export function useProject() {
       transform: clip.transform ? { ...clip.transform } : undefined,
     };
 
+    snapshotClips(); // Snapshot before split
     // Update the first clip (before the split) and add the second clip
-    setClips(prev => [
-      ...prev.map(c => {
+    setClipsInternal((prev: TimelineClip[]) => [
+      ...prev.map((c: TimelineClip) => {
         if (c.id !== clipId) return c;
         return {
           ...c,
@@ -525,7 +552,7 @@ export function useProject() {
     ]);
 
     return secondClip.id;
-  }, [clips]);
+  }, [clips, snapshotClips, setClipsInternal]);
 
   // Create a new timeline tab for editing a clip/animation in isolation
   const createTimelineTab = useCallback((name: string, assetId: string, initialClips?: TimelineClip[]): string => {
@@ -571,7 +598,7 @@ export function useProject() {
 
   // Update clips in a specific tab
   const updateTabClips = useCallback((tabId: string, clips: TimelineClip[]): void => {
-    setTimelineTabs(prev => prev.map(tab =>
+    setTimelineTabs(prev => prev.map((tab: TimelineTab) =>
       tab.id === tabId ? { ...tab, clips } : tab
     ));
   }, []);
@@ -582,7 +609,7 @@ export function useProject() {
     console.log('[updateTabAsset] Called with:', { tabId, newAssetId, newDuration });
 
     setTimelineTabs(prev => {
-      const updatedTabs = prev.map(tab => {
+      const updatedTabs = prev.map((tab: TimelineTab) => {
         if (tab.id !== tabId) return tab;
 
         console.log('[updateTabAsset] Found tab to update:', {
@@ -672,11 +699,12 @@ export function useProject() {
       style: { ...defaultCaptionStyle, ...style },
     };
 
-    setClips(prev => [...prev, clip]);
+    snapshotClips(); // Snapshot before adding caption
+    setClipsInternal((prev: TimelineClip[]) => [...prev, clip]);
     setCaptionData(prev => ({ ...prev, [clipId]: captionInfo }));
 
     return clip;
-  }, []);
+  }, [snapshotClips, setClipsInternal]);
 
   // Add multiple caption clips at once (batched for performance)
   const addCaptionClipsBatch = useCallback((
@@ -709,12 +737,13 @@ export function useProject() {
       };
     }
 
+    snapshotClips(); // Snapshot before adding batch
     // Single state update for all clips
-    setClips(prev => [...prev, ...newClips]);
+    setClipsInternal((prev: TimelineClip[]) => [...prev, ...newClips]);
     setCaptionData(prev => ({ ...prev, ...newCaptionData }));
 
     return newClips;
-  }, []);
+  }, [snapshotClips, setClipsInternal]);
 
   // Update caption style
   const updateCaptionStyle = useCallback((clipId: string, styleUpdates: Partial<CaptionStyle>): void => {
@@ -848,13 +877,13 @@ export function useProject() {
         const data = await response.json();
         // Don't load tracks from server - always use client's default tracks
         // Server tracks may be outdated (e.g., missing T1, V3, A2)
-        if (data.clips) setClips(data.clips);
+        if (data.clips) setClipsInternal(data.clips);
         if (data.settings) setSettings(data.settings);
       }
     } catch (error) {
       console.error('[Project] Load failed:', error);
     }
-  }, [session]);
+  }, [session, setClipsInternal]);
 
   // Render project
   // Uses refs to always get latest state
@@ -904,7 +933,7 @@ export function useProject() {
   // Get total project duration
   const getDuration = useCallback((): number => {
     if (clips.length === 0) return 0;
-    return Math.max(...clips.map(c => c.start + c.duration));
+    return Math.max(...clips.map((c: TimelineClip) => c.start + c.duration));
   }, [clips]);
 
   // Create animated GIF from an image asset
@@ -972,8 +1001,8 @@ export function useProject() {
     }
     setSession(null);
     setAssets([]);
-    setClips([]);
-  }, [session]);
+    setClipsInternal([]);
+  }, [session, setClipsInternal]);
 
   // Get system settings (API keys)
   const getSystemSettings = useCallback(async (): Promise<Record<string, boolean>> => {
@@ -1047,6 +1076,13 @@ export function useProject() {
     resizeClip,
     splitClip,
 
+    // History
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    snapshotClips,
+
     // Captions
     captionData,
     addCaptionClip,
@@ -1066,7 +1102,7 @@ export function useProject() {
 
     // Setters for direct state manipulation
     setTracks,
-    setClips,
+    setClips: setClipsInternal,
     setSettings,
 
     // Timeline tabs
