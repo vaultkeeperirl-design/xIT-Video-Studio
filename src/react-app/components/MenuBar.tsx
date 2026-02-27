@@ -18,6 +18,7 @@ import {
   ZoomOut,
   FileText,
   Film,
+  Play,
   Mic,
   ScissorsLineDashed,
   Info,
@@ -28,6 +29,8 @@ import xitLogo from '@/assets/xit_logo.png';
 interface MenuBarProps {
   onImportAsset: (files: FileList) => void;
   onExportProject: () => void;
+  onYoutubeExport: () => void;
+  onTiktokExport: () => void;
   onOpenSettings: () => void;
   onDeleteSelected: () => void;
   onSplitClip: () => void;
@@ -69,6 +72,8 @@ type MenuCategory = {
 export default function MenuBar({
   onImportAsset,
   onExportProject,
+  onYoutubeExport,
+  onTiktokExport,
   onOpenSettings,
   onDeleteSelected,
   onSplitClip,
@@ -130,7 +135,7 @@ export default function MenuBar({
       icon: <File className="w-4 h-4" />,
       items: [
         { label: 'Import Asset...', icon: <Upload className="w-4 h-4" />, action: handleImportClick, shortcut: 'Ctrl+I' },
-        { label: 'Export Project...', icon: <Download className="w-4 h-4" />, action: () => { onExportProject(); setActiveMenu(null); }, disabled: !hasClips || isProcessing, shortcut: 'Ctrl+E' },
+        { label: 'Render Project...', icon: <Download className="w-4 h-4" />, action: () => { onExportProject(); setActiveMenu(null); }, disabled: !hasClips || isProcessing, shortcut: 'Ctrl+R' },
         { type: 'separator' },
         { label: 'Settings', icon: <Settings className="w-4 h-4" />, action: () => { onOpenSettings(); setActiveMenu(null); }, shortcut: 'Ctrl+,' },
         { type: 'separator' },
@@ -263,13 +268,40 @@ export default function MenuBar({
         </div>
       </div>
 
-      <div className="flex items-center gap-4 text-xs text-zinc-500">
+      <div className="flex items-center gap-3 app-region-no-drag">
         {isProcessing && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 mr-4 text-xs text-zinc-500">
             <span className="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span>
             Processing...
           </div>
         )}
+
+        <button
+          onClick={onYoutubeExport}
+          disabled={!hasClips || isProcessing}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-zinc-800 text-zinc-300 text-sm font-medium hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Upload className="w-4 h-4" />
+          YouTube
+        </button>
+
+        <button
+          onClick={onTiktokExport}
+          disabled={!hasClips || isProcessing}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-zinc-800 text-zinc-300 text-sm font-medium hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Upload className="w-4 h-4" />
+          TikTok
+        </button>
+
+        <button
+          onClick={onExportProject}
+          disabled={!hasClips || isProcessing}
+          className="flex items-center gap-2 px-4 py-1.5 rounded-md bg-brand-500 text-black text-sm font-bold hover:bg-brand-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Play className="w-4 h-4 fill-current" />
+          Render
+        </button>
       </div>
     </div>
   );

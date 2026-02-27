@@ -107,6 +107,7 @@ export default function Home() {
     checkServer();
   }, [checkServer]);
 
+
   // Load project from server when session becomes available
   useEffect(() => {
     if (session) {
@@ -1528,11 +1529,44 @@ export default function Home() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      return downloadUrl;
     } catch (error) {
       console.error('Export failed:', error);
       alert(`Export failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }, [clips.length, renderProject]);
+
+  // Handle YouTube Export
+  const handleYoutubeExport = useCallback(async () => {
+    const downloadUrl = await handleExport();
+    if (downloadUrl) {
+      alert('Video rendered successfully! Starting upload to YouTube...');
+      // Future implementation: actual upload logic
+    }
+  }, [handleExport]);
+
+  // Handle global shortcuts
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+R for Render
+      if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+        e.preventDefault();
+        handleExport();
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [handleExport]);
+
+  // Handle TikTok Export
+  const handleTiktokExport = useCallback(async () => {
+    const downloadUrl = await handleExport();
+    if (downloadUrl) {
+      alert('Video rendered successfully! Starting upload to TikTok...');
+      // Future implementation: actual upload logic
+    }
+  }, [handleExport]);
 
   // Edit an existing animation with a new prompt
   const handleEditAnimation = useCallback(async (
@@ -1646,6 +1680,8 @@ export default function Home() {
       <MenuBar
         onImportAsset={handleAssetUpload}
         onExportProject={handleExport}
+        onYoutubeExport={handleYoutubeExport}
+        onTiktokExport={handleTiktokExport}
         onOpenSettings={() => setShowSettings(true)}
         onDeleteSelected={() => selectedClipId && handleDeleteClip(selectedClipId)}
         onSplitClip={handleCutAtPlayhead}
