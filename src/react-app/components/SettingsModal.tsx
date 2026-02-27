@@ -69,7 +69,7 @@ export default function SettingsModal({ onClose, onSave, initialSettingsPromise 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
           <div className="flex items-center gap-2">
-            <Key className="w-5 h-5 text-orange-500" />
+            <Key className="w-5 h-5 text-brand-500" />
             <span className="text-lg font-semibold text-white">Settings</span>
           </div>
           <button
@@ -84,7 +84,7 @@ export default function SettingsModal({ onClose, onSave, initialSettingsPromise 
         <div className="p-6 overflow-y-auto">
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+              <Loader2 className="w-8 h-8 text-brand-500 animate-spin" />
             </div>
           ) : (
             <form id="settings-form" onSubmit={handleSave} className="space-y-6">
@@ -152,7 +152,7 @@ export default function SettingsModal({ onClose, onSave, initialSettingsPromise 
             type="submit"
             form="settings-form"
             disabled={saving || loading}
-            className="px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2"
+            className="px-4 py-2 bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 text-white rounded-lg text-sm font-medium transition-all flex items-center gap-2"
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
             Save Changes
@@ -201,7 +201,7 @@ function ApiKeyInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={isSet ? '••••••••••••••••••••••••' : 'Enter API Key starting with...'}
-        className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-white placeholder-zinc-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition-all text-sm font-mono"
+        className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 rounded-lg text-white placeholder-zinc-600 focus:outline-none focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/50 transition-all text-sm font-mono"
       />
       <p className="text-xs text-zinc-500">
         {description}
