@@ -177,7 +177,7 @@ export default function MenuBar({
       label: 'Help',
       icon: <HelpCircle className="w-4 h-4" />,
       items: [
-        { label: 'Documentation', icon: <BookOpen className="w-4 h-4" />, action: () => { window.open('https://github.com/xit-video/studio', '_blank'); setActiveMenu(null); } },
+        { label: 'Documentation', icon: <BookOpen className="w-4 h-4" />, action: () => { window.open('https://github.com/vaultkeeperirl-design/xIT-Video-Studio', '_blank'); setActiveMenu(null); } },
         { type: 'separator' },
         { label: 'About xIT Video Studio', icon: <Info className="w-4 h-4" />, action: () => { onOpenAbout(); setActiveMenu(null); } },
       ]

@@ -42,7 +42,7 @@ export default function AboutModal({ onClose }: AboutModalProps) {
 
           <div className="grid grid-cols-2 gap-3 w-full mb-8">
             <a
-              href="https://github.com/xit-video/studio"
+              href="https://github.com/vaultkeeperirl-design/xIT-Video-Studio"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white rounded-lg transition-colors text-sm font-medium border border-zinc-700 hover:border-zinc-600"
