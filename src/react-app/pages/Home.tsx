@@ -12,11 +12,12 @@ import SettingsModal from '@/react-app/components/SettingsModal';
 import ResizablePanel from '@/react-app/components/ResizablePanel';
 import ResizableVerticalPanel from '@/react-app/components/ResizableVerticalPanel';
 import TimelineTabs from '@/react-app/components/TimelineTabs';
+import MenuBar from '@/react-app/components/MenuBar';
+import AboutModal from '@/react-app/components/AboutModal';
 import { useProject, Asset, TimelineClip, CaptionStyle } from '@/react-app/hooks/useProject';
 import { useVideoSession } from '@/react-app/hooks/useVideoSession';
-import { Sparkles, ListOrdered, Copy, Check, X, Download, Play, Palette, Film, Settings } from 'lucide-react';
+import { Sparkles, ListOrdered, Copy, Check, X, Play, Palette, Film } from 'lucide-react';
 import type { TemplateId } from '@/remotion/templates';
-import xitLogo from '@/assets/xit_logo.png';
 
 interface ChapterData {
   chapters: Array<{ start: number; title: string }>;
@@ -38,6 +39,7 @@ export default function Home() {
   const [activeAgent, setActiveAgent] = useState<'director' | 'picasso' | 'dicaprio'>('director');
   const [showGifSearch, setShowGifSearch] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
 
   const videoPreviewRef = useRef<VideoPreviewHandle>(null);
   const playbackRef = useRef<number | null>(null);
@@ -1640,53 +1642,28 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen bg-zinc-950 text-white overflow-hidden">
-      {/* Header */}
-      <header className="flex items-center justify-between px-6 py-3 bg-zinc-900/50 border-b border-zinc-800/50 backdrop-blur-sm">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <img src={xitLogo} alt="xIT Logo" className="h-8" />
-          </div>
-          {currentStatus && (
-            <span className="text-xs text-zinc-400 bg-zinc-800 px-2 py-1 rounded">
-              {currentStatus}
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-3">
-          {(session || legacySession) && (
-            <>
-              <button
-                onClick={handleGenerateChapters}
-                disabled={isProcessing || !legacySession}
-                className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-              >
-                <ListOrdered className="w-4 h-4" />
-                Chapters
-              </button>
-              {clips.length > 0 && (
-                <button
-                  onClick={handleExport}
-                  disabled={isProcessing}
-                  className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-                >
-                  <Download className="w-4 h-4" />
-                  Export
-                </button>
-              )}
-            </>
-          )}
-          <button className="px-4 py-2 bg-gradient-to-r from-brand-500 to-brand-400 hover:from-brand-600 hover:to-brand-500 text-zinc-900 rounded-lg text-sm font-medium transition-all">
-            AI Edit
-          </button>
-          <button
-            onClick={() => setShowSettings(true)}
-            className="p-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-zinc-400 hover:text-white"
-            title="Settings"
-          >
-            <Settings className="w-5 h-5" />
-          </button>
-        </div>
-      </header>
+      {/* Menu Bar */}
+      <MenuBar
+        onImportAsset={handleAssetUpload}
+        onExportProject={handleExport}
+        onOpenSettings={() => setShowSettings(true)}
+        onDeleteSelected={() => selectedClipId && handleDeleteClip(selectedClipId)}
+        onSplitClip={handleCutAtPlayhead}
+        onAutoEdit={() => {
+          setActiveAgent('director');
+          // TODO: Trigger auto-edit specific function if available, or just open panel
+        }}
+        onGenerateChapters={handleGenerateChapters}
+        onGenerateBroll={handleGenerateBroll}
+        onTranscribe={handleTranscribeAndAddCaptions}
+        onRemoveDeadAir={handleRemoveDeadAir}
+        onOpenAbout={() => setShowAbout(true)}
+        canUndo={false} // Undo not implemented yet
+        canRedo={false} // Redo not implemented yet
+        isProcessing={isProcessing}
+        hasProject={!!session || !!legacySession}
+        hasClips={clips.length > 0}
+      />
 
       {/* Timeline Tabs */}
       <TimelineTabs
@@ -2008,6 +1985,11 @@ export default function Home() {
           onSave={saveSystemSettings}
           initialSettingsPromise={getSystemSettings()}
         />
+      )}
+
+      {/* About Modal */}
+      {showAbout && (
+        <AboutModal onClose={() => setShowAbout(false)} />
       )}
     </div>
   );
