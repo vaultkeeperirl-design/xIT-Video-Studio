@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, memo } from 'react';
 import { Film, Image, Music, X, Type, Sparkles } from 'lucide-react';
 import type { TimelineClip as TimelineClipType, Asset } from '@/react-app/hooks/useProject';
 
@@ -8,11 +8,11 @@ interface TimelineClipProps {
   pixelsPerSecond: number;
   isSelected: boolean;
   trackHeight: number;
-  onClick: () => void;
-  onMove: (newStart: number) => void;
-  onResize: (newInPoint: number, newOutPoint: number, newStart?: number) => void;
+  onSelect: (id: string) => void;
+  onMove: (id: string, newStart: number) => void;
+  onResize: (id: string, newInPoint: number, newOutPoint: number, newStart?: number) => void;
   onDragEnd: () => void;
-  onDelete: () => void;
+  onDelete: (id: string) => void;
   captionPreview?: string;  // For caption clips - first few words
   isCaption?: boolean;       // Whether this is a caption clip
 }
@@ -37,13 +37,13 @@ const getClipColor = (type?: Asset['type'] | 'caption') => {
   }
 };
 
-export default function TimelineClip({
+const TimelineClip = memo(function TimelineClip({
   clip,
   asset,
   pixelsPerSecond,
   isSelected,
   trackHeight,
-  onClick,
+  onSelect,
   onMove,
   onResize,
   onDragEnd,
@@ -110,7 +110,7 @@ export default function TimelineClip({
 
       if (isDragging) {
         const newStart = Math.max(0, initialStart + deltaTime);
-        onMove(newStart);
+        onMove(clip.id, newStart);
       } else if (isResizingLeft) {
         // Resize from left - changes inPoint and start
         const newInPoint = Math.max(0, initialInPoint + deltaTime);
@@ -118,14 +118,14 @@ export default function TimelineClip({
         const clampedInPoint = Math.min(newInPoint, maxInPoint);
         const inPointDelta = clampedInPoint - initialInPoint;
         const newStart = initialStart + inPointDelta;
-        onResize(clampedInPoint, clip.outPoint, Math.max(0, newStart));
+        onResize(clip.id, clampedInPoint, clip.outPoint, Math.max(0, newStart));
       } else if (isResizingRight) {
         // Resize from right - changes outPoint
         const newOutPoint = initialOutPoint + deltaTime;
         const minOutPoint = clip.inPoint + 0.1; // Minimum 0.1s duration
         const maxOutPoint = asset?.duration ?? Infinity;
         const clampedOutPoint = Math.min(Math.max(newOutPoint, minOutPoint), maxOutPoint);
-        onResize(clip.inPoint, clampedOutPoint);
+        onResize(clip.id, clip.inPoint, clampedOutPoint);
       }
     };
 
@@ -152,6 +152,7 @@ export default function TimelineClip({
     initialInPoint,
     initialOutPoint,
     pixelsPerSecond,
+    clip.id,
     clip.inPoint,
     clip.outPoint,
     asset?.duration,
@@ -165,7 +166,7 @@ export default function TimelineClip({
       ref={clipRef}
       onClick={(e) => {
         e.stopPropagation();
-        onClick();
+        onSelect(clip.id);
       }}
       onMouseDown={handleMouseDown}
       className={`absolute rounded-md bg-gradient-to-r ${colorClass} ${
@@ -253,7 +254,7 @@ export default function TimelineClip({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onDelete();
+            onDelete(clip.id);
           }}
           className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center shadow-lg transition-colors z-30"
           title="Remove from timeline"
@@ -270,7 +271,7 @@ export default function TimelineClip({
       )}
     </div>
   );
-}
+});
 
 function formatTime(seconds: number): string {
   const mins = Math.floor(seconds / 60);
@@ -278,3 +279,5 @@ function formatTime(seconds: number): string {
   const ms = Math.floor((seconds % 1) * 10);
   return `${mins}:${secs.toString().padStart(2, '0')}.${ms}`;
 }
+
+export default TimelineClip;

@@ -472,12 +472,10 @@ export default function Timeline({
                           pixelsPerSecond={pixelsPerSecond}
                           isSelected={selectedClipId === clip.id}
                           trackHeight={TRACK_HEIGHTS[track.type]}
-                          onClick={() => onSelectClip(clip.id)}
-                          onMove={(newStart) => onMoveClip(clip.id, newStart)}
-                          onResize={(inPoint, outPoint, newStart) =>
-                            onResizeClip(clip.id, inPoint, outPoint, newStart)
-                          }
-                          onDelete={() => onDeleteClip(clip.id)}
+                          onSelect={onSelectClip}
+                          onMove={onMoveClip}
+                          onResize={onResizeClip}
+                          onDelete={onDeleteClip}
                           onDragEnd={onSave}
                           isCaption={isCaption}
                           captionPreview={captionPreview}
