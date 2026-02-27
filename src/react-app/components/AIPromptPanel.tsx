@@ -2296,7 +2296,7 @@ export default function AIPromptPanel({
       {/* Header */}
       <div className="p-4 border-b border-zinc-800/50">
         <div className="flex items-center gap-2 mb-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-brand-500 to-amber-500 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-gradient-to-br from-brand-500 to-brand-400 rounded-lg flex items-center justify-center">
             <Sparkles className="w-4 h-4" />
           </div>
           <h2 className="font-semibold">xIT AI</h2>
@@ -2353,7 +2353,7 @@ export default function AIPromptPanel({
                 <>
                   <div className="mt-2 h-2 bg-zinc-800 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-brand-500 to-amber-500 transition-all duration-300"
+                      className="h-full bg-gradient-to-r from-brand-500 to-brand-400 transition-all duration-300"
                       style={{ width: `${applyProgress}%` }}
                     />
                   </div>
@@ -2378,7 +2378,7 @@ export default function AIPromptPanel({
             <div key={idx} className="space-y-2">
               {message.type === 'user' ? (
                 <div className="flex justify-end">
-                  <div className="bg-gradient-to-r from-brand-500 to-amber-500 rounded-lg px-3 py-2 max-w-[85%]">
+                  <div className="bg-gradient-to-r from-brand-500 to-brand-400 rounded-lg px-3 py-2 max-w-[85%]">
                     <p className="text-sm text-white">{message.text}</p>
                   </div>
                 </div>
@@ -2506,7 +2506,7 @@ export default function AIPromptPanel({
                           <button
                             onClick={() => handleApplyEdit(message.command!, idx)}
                             disabled={isApplying || !hasVideo}
-                            className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 disabled:from-zinc-700 disabled:to-zinc-700 rounded-lg text-xs font-medium transition-all"
+                            className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-brand-500 to-brand-400 hover:from-brand-600 hover:to-brand-500 disabled:from-zinc-700 disabled:to-zinc-700 rounded-lg text-xs font-medium transition-all"
                           >
                             {isApplying ? (
                               <>
@@ -2600,7 +2600,7 @@ export default function AIPromptPanel({
           type="button"
           onClick={() => setShowMotionGraphicsModal(true)}
           disabled={!hasVideo || isProcessing}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 mb-2 rounded-lg text-sm font-medium transition-all bg-gradient-to-r from-brand-500/20 to-amber-500/20 hover:from-brand-500/30 hover:to-amber-500/30 text-brand-300 hover:text-brand-200 border border-brand-500/30 hover:border-brand-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 mb-2 rounded-lg text-sm font-medium transition-all bg-gradient-to-r from-brand-500/20 to-brand-400/20 hover:from-brand-500/30 hover:to-brand-400/30 text-brand-300 hover:text-brand-200 border border-brand-500/30 hover:border-brand-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Wand2 className="w-4 h-4" />
           Motion Graphics
@@ -2946,7 +2946,7 @@ export default function AIPromptPanel({
             <button
               type="submit"
               disabled={!prompt.trim() || isProcessing || !hasVideo}
-              className="w-8 h-8 bg-gradient-to-r from-brand-500 to-amber-500 disabled:from-zinc-700 disabled:to-zinc-700 rounded-lg flex items-center justify-center transition-all hover:shadow-lg hover:shadow-brand-500/50 disabled:shadow-none"
+              className="w-8 h-8 bg-gradient-to-r from-brand-500 to-brand-400 disabled:from-zinc-700 disabled:to-zinc-700 rounded-lg flex items-center justify-center transition-all hover:shadow-lg hover:shadow-brand-500/50 disabled:shadow-none"
             >
               {isProcessing ? (
                 <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />

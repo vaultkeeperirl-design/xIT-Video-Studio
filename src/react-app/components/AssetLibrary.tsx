@@ -25,7 +25,7 @@ const getAssetIcon = (type: Asset['type']) => {
 const getAssetColor = (type: Asset['type']) => {
   switch (type) {
     case 'video': return 'from-blue-500 to-cyan-500';
-    case 'image': return 'from-amber-500 to-brand-500';
+    case 'image': return 'from-brand-500 to-brand-400';
     case 'audio': return 'from-emerald-500 to-teal-500';
     default: return 'from-gray-500 to-gray-600';
   }

@@ -1675,7 +1675,7 @@ export default function Home() {
               )}
             </>
           )}
-          <button className="px-4 py-2 bg-gradient-to-r from-brand-500 to-amber-500 hover:from-brand-600 hover:to-amber-600 rounded-lg text-sm font-medium transition-all">
+          <button className="px-4 py-2 bg-gradient-to-r from-brand-500 to-brand-400 hover:from-brand-600 hover:to-brand-500 rounded-lg text-sm font-medium transition-all">
             AI Edit
           </button>
           <button
