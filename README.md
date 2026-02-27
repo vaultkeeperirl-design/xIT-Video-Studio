@@ -16,11 +16,10 @@ xIT is an AI-powered video editing application built with Electron, React, and R
 
 ## Getting Started
 
-xIT is distributed as a standalone Windows application.
+xIT is a standalone portable Windows application. No installation is required.
 
-1.  **Download the Installer:** Get the latest `.exe` installer from the releases page.
-2.  **Install:** Run the setup file to install xIT Video Studio on your system.
-3.  **Launch:** Open xIT from your desktop or start menu.
+1.  **Download:** Get the latest `.exe` from the releases page.
+2.  **Launch:** Double-click the `xIT.exe` file to start xIT Video Studio immediately.
 
 ## Architecture
 
