@@ -57,6 +57,7 @@
     "concurrently": "^9.2.1",
     "electron": "^40.6.1",
     "electron-builder": "^26.8.1",
+    "esbuild": "^0.27.3",
     "eslint": "9.25.1",
     "eslint-plugin-react-hooks": "5.2.0",
     "eslint-plugin-react-refresh": "0.4.19",
@@ -71,7 +72,7 @@
     "wrangler": "^4.33.0"
   },
   "scripts": {
-    "build": "npm run cf-typegen && tsc -b && vite build",
+    "build": "npm run cf-typegen && tsc -b && vite build && node scripts/build-server.js",
     "cf-typegen": "wrangler types",
     "check": "npm run cf-typegen && tsc && vite build && wrangler deploy --dry-run",
     "dev": "vite",
@@ -93,6 +94,7 @@
     ],
     "extraResources": [
       "scripts/**/*",
+      "dist/server/**/*",
       "src/remotion/**/*",
       "remotion.config.ts",
       "tsconfig.json",

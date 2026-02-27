@@ -14,11 +14,37 @@ const IS_ELECTRON = process.env.ELECTRON_RUN === 'true';
 // In Electron/production, resources might be in a different place
 const BASE_DIR = process.env.CWD_OVERRIDE || process.cwd();
 
+// Get the writable directory for user data/settings
+// In production (Electron), this is passed via env var USER_DATA_PATH
+// In dev, we use the project root
+const USER_DATA_DIR = process.env.USER_DATA_PATH || BASE_DIR;
+
 // Load environment variables from .dev.vars
 function loadEnvVars() {
   try {
-    const envPath = join(BASE_DIR, '.dev.vars');
+    // Try user data dir first (production/writable), then base dir (dev/readonly fallback)
+    let envPath = join(USER_DATA_DIR, '.dev.vars');
+    let loaded = false;
+
+    // If it doesn't exist in user data, try base dir (initial read)
+    if (!existsSync(envPath) && USER_DATA_DIR !== BASE_DIR) {
+      const baseEnvPath = join(BASE_DIR, '.dev.vars');
+      if (existsSync(baseEnvPath)) {
+        // Copy to user data dir so it becomes writable
+        try {
+          const content = readFileSync(baseEnvPath, 'utf-8');
+          writeFileSync(envPath, content);
+          console.log('[Server] Copied .dev.vars to writable user data directory');
+        } catch (copyErr) {
+          console.warn('[Server] Failed to copy .dev.vars to user data:', copyErr.message);
+          envPath = baseEnvPath; // Fallback to reading from base
+        }
+      }
+    }
+
+    // Try loading from primary path
     if (existsSync(envPath)) {
+      console.log('[Server] Loading settings from:', envPath);
       const content = readFileSync(envPath, 'utf-8');
       for (const line of content.split('\n')) {
         const [key, ...valueParts] = line.split('=');
@@ -26,7 +52,28 @@ function loadEnvVars() {
           process.env[key.trim()] = valueParts.join('=').trim();
         }
       }
+      loaded = true;
     }
+
+    // If failed and paths are different, try base path as readonly fallback
+    if (!loaded && USER_DATA_DIR !== BASE_DIR) {
+        const baseEnvPath = join(BASE_DIR, '.dev.vars');
+        if (existsSync(baseEnvPath)) {
+            console.log('[Server] Loading settings from base fallback:', baseEnvPath);
+            const content = readFileSync(baseEnvPath, 'utf-8');
+            for (const line of content.split('\n')) {
+                const [key, ...valueParts] = line.split('=');
+                if (key && valueParts.length > 0) {
+                process.env[key.trim()] = valueParts.join('=').trim();
+                }
+            }
+        } else {
+            console.log('[Server] No .dev.vars found at:', envPath, 'or', baseEnvPath);
+        }
+    } else if (!loaded) {
+        console.log('[Server] No .dev.vars found at:', envPath);
+    }
+
   } catch (e) {
     console.warn('Could not load .dev.vars:', e.message);
   }
@@ -7675,8 +7722,8 @@ async function handleSettingsSave(req, res) {
       }
     }
 
-    // Persist to .dev.vars
-    const envPath = join(BASE_DIR, '.dev.vars');
+    // Persist to .dev.vars in writable user data directory
+    const envPath = join(USER_DATA_DIR, '.dev.vars');
     let envContent = '';
 
     if (existsSync(envPath)) {

@@ -94,8 +94,8 @@ function startServer() {
   if (isDev) {
     scriptPath = path.join(__dirname, '../scripts/local-ffmpeg-server.js');
   } else {
-    // In production, scripts are in resources/scripts (unpacked)
-    scriptPath = path.join(process.resourcesPath, 'scripts/local-ffmpeg-server.js');
+    // In production, we use the bundled server in resources/dist/server/server.js
+    scriptPath = path.join(process.resourcesPath, 'dist/server/server.js');
   }
 
   // In production, we might need to handle the script path differently
@@ -117,7 +117,9 @@ function startServer() {
     ...process.env,
     FFMPEG_PATH: ffmpegPath,
     FFPROBE_PATH: ffprobePath,
-    ELECTRON_RUN: 'true'
+    ELECTRON_RUN: 'true',
+    // Pass user data path for writable access (DBs, logs, etc)
+    USER_DATA_PATH: app.getPath('userData')
   };
 
   if (!isDev) {
