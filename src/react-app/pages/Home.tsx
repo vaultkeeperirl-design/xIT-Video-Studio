@@ -15,9 +15,9 @@ import TimelineTabs from '@/react-app/components/TimelineTabs';
 import MenuBar from '@/react-app/components/MenuBar';
 import AboutModal from '@/react-app/components/AboutModal';
 import ReframeTool from '@/react-app/components/ReframeTool';
-import { useProject, Asset, TimelineClip, CaptionStyle, FaceTrack } from '@/react-app/hooks/useProject';
+import { useProject, Asset, TimelineClip, CaptionStyle } from '@/react-app/hooks/useProject';
 import { useVideoSession } from '@/react-app/hooks/useVideoSession';
-import { Sparkles, ListOrdered, Copy, Check, X, Play, Palette, Film, Target } from 'lucide-react';
+import { Sparkles, ListOrdered, Copy, Check, X, Play, Palette, Film } from 'lucide-react';
 import type { TemplateId } from '@/remotion/templates';
 
 interface ChapterData {
