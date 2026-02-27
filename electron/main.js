@@ -37,7 +37,13 @@ function createWindow() {
 }
 
 function startServer() {
-  const scriptPath = path.join(__dirname, '../scripts/local-ffmpeg-server.js');
+  let scriptPath;
+  if (isDev) {
+    scriptPath = path.join(__dirname, '../scripts/local-ffmpeg-server.js');
+  } else {
+    // In production, scripts are in resources/scripts (unpacked)
+    scriptPath = path.join(process.resourcesPath, 'scripts/local-ffmpeg-server.js');
+  }
 
   // In production, we might need to handle the script path differently
   // if it's bundled. But since we are forking, we expect the file to exist.

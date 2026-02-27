@@ -1,6 +1,8 @@
 {
   "name": "xit",
   "productName": "xIT",
+  "description": "An AI-powered video editor",
+  "author": "xIT",
   "private": true,
   "version": "0.0.1",
   "main": "electron/main.js",
@@ -84,14 +86,14 @@
     },
     "files": [
       "dist/**/*",
-      "electron/**/*"
+      "electron/**/*",
+      "package.json"
     ],
     "extraResources": [
       "scripts/**/*",
       "src/remotion/**/*",
       "remotion.config.ts",
       "tsconfig.json",
-      "package.json",
       "tailwind.config.js",
       "postcss.config.js"
     ],
