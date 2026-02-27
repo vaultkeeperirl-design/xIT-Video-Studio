@@ -15,7 +15,7 @@ let serverProcess;
 function createWindow() {
   const iconPath = isDev
     ? path.join(__dirname, '../public/icon.png')
-    : path.join(__dirname, '../dist/icon.png');
+    : path.join(__dirname, '../dist/client/icon.png');
 
   mainWindow = new BrowserWindow({
     title: "xIT Video Studio",
@@ -33,7 +33,7 @@ function createWindow() {
     mainWindow.webContents.openDevTools();
   } else {
     // In production, load the built React app
-    mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+    mainWindow.loadFile(path.join(__dirname, '../dist/client/index.html'));
   }
 
   mainWindow.on('closed', () => {
