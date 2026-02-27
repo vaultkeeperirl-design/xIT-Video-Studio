@@ -16,6 +16,7 @@ import { useProject, Asset, TimelineClip, CaptionStyle } from '@/react-app/hooks
 import { useVideoSession } from '@/react-app/hooks/useVideoSession';
 import { Sparkles, ListOrdered, Copy, Check, X, Download, Play, Palette, Film, Settings } from 'lucide-react';
 import type { TemplateId } from '@/remotion/templates';
+import xitLogo from '@/assets/xit_logo.png';
 
 interface ChapterData {
   chapters: Array<{ start: number; title: string }>;
@@ -1643,12 +1644,7 @@ export default function Home() {
       <header className="flex items-center justify-between px-6 py-3 bg-zinc-900/50 border-b border-zinc-800/50 backdrop-blur-sm">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-amber-500 rounded-lg flex items-center justify-center">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
-              HyperEdit
-            </h1>
+            <img src={xitLogo} alt="xIT Logo" className="h-8" />
           </div>
           {currentStatus && (
             <span className="text-xs text-zinc-400 bg-zinc-800 px-2 py-1 rounded">

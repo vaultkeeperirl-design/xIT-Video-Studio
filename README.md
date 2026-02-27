@@ -1,3 +1,5 @@
+![xIT Logo](src/assets/xit_logo.png)
+
 # xIT
 
 xIT is an AI-powered video editing application built with Electron, React, and Remotion. It leverages local FFmpeg processing and AI services (Gemini, OpenAI, Fal.ai) to provide a powerful video creation workflow.
