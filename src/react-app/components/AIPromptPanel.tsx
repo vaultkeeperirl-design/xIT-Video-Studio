@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { Sparkles, Send, Wand2, Clock, Terminal, CheckCircle, Loader2, VolumeX, FileVideo, Type, Image, Zap, X, Scissors, Plus, Film, Music, MapPin, Timer, ImagePlus, Move } from 'lucide-react';
 import type { TimelineClip, Track, Asset } from '@/react-app/hooks/useProject';
 import { MOTION_TEMPLATES, type TemplateId } from '@/remotion/templates';
@@ -197,7 +197,11 @@ interface AIPromptPanelProps {
   editTabClips?: TimelineClip[]; // Clips in the edit tab's timeline
 }
 
-export default function AIPromptPanel({
+export interface AIPromptPanelHandle {
+  triggerAutoEdit: () => void;
+}
+
+const AIPromptPanel = forwardRef<AIPromptPanelHandle, AIPromptPanelProps>(({
   onApplyEdit,
   onExtractKeywordsAndAddGifs,
   onTranscribeAndAddCaptions,
@@ -227,7 +231,7 @@ export default function AIPromptPanel({
   activeTabId = 'main',
   editTabAssetId,
   editTabClips = [],
-}: AIPromptPanelProps) {
+}, ref) => {
   const [prompt, setPrompt] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStatus, setProcessingStatus] = useState('');
@@ -535,11 +539,24 @@ export default function AIPromptPanel({
     return parts.join(' ') + '\n\n';
   };
 
+  // Expose methods to parent
+  useImperativeHandle(ref, () => ({
+    triggerAutoEdit: () => {
+      // Set the prompt and simulate a submission
+      const autoEditPrompt = "Auto-edit my video";
+      setPrompt(autoEditPrompt);
+
+      // We need to wait for state to update, but we can also just call the workflow directly
+      handleAutoEditWorkflow();
+    }
+  }));
+
   const FONT_OPTIONS = [
     'Inter', 'Roboto', 'Poppins', 'Montserrat', 'Oswald', 'Bebas Neue', 'Arial', 'Helvetica'
   ];
 
   const suggestions = [
+    { icon: Sparkles, text: 'Auto-edit my video' },
     { icon: Type, text: 'Add captions' },
     { icon: VolumeX, text: 'Remove dead air / silence' },
     { icon: Wand2, text: 'Remove background noise' },
@@ -878,6 +895,7 @@ export default function AIPromptPanel({
   // uses understanding of what the user wants.
 
   type WorkflowType =
+    | 'auto-edit'           // Full auto-edit (dead air, captions, chapters)
     | 'edit-animation'      // Modify an existing Remotion animation
     | 'create-animation'    // Create a new Remotion animation
     | 'batch-animations'    // Generate multiple animations across the video
@@ -963,6 +981,13 @@ export default function AIPromptPanel({
     // ============================================
     // INTENT-BASED DECISIONS (when not in edit tab)
     // ============================================
+
+    // Auto-edit
+    if (lower.includes('auto-edit') || lower.includes('auto edit') ||
+        lower.includes('magic edit') || lower.includes('do everything') ||
+        (lower.includes('edit') && lower.includes('for me'))) {
+      return 'auto-edit';
+    }
 
     // Caption-related requests
     if (lower.includes('caption') || lower.includes('subtitle') ||
@@ -1814,6 +1839,68 @@ export default function AIPromptPanel({
     }
   };
 
+  // Handle the full auto-edit workflow
+  const handleAutoEditWorkflow = async () => {
+    if (!onRemoveDeadAir || !onTranscribeAndAddCaptions || !onChapterCuts) {
+      setChatHistory(prev => [...prev, {
+        type: 'assistant',
+        text: 'Auto-edit requires dead air removal, captioning, and chapter generation features to be available.',
+      }]);
+      return;
+    }
+
+    setIsProcessing(true);
+    setProcessingStatus('Starting Auto-Edit...');
+    setPrompt(''); // Clear prompt input if it was set
+    setSelectedReferences([]);
+    clearTimeRange();
+
+    try {
+      setChatHistory(prev => [...prev, {
+        type: 'assistant',
+        text: '✨ Starting Magic Auto-Edit...\n\nI will perform a full editing pass on your video:\n1. 🔇 Removing dead air and pauses\n2. 📝 Generating and adding animated captions\n3. 📑 Splitting into logical chapters\n\nThis will take a few moments. Hang tight!',
+        isProcessingGifs: true,
+      }]);
+
+      // Step 1: Dead Air
+      setProcessingStatus('Removing dead air...');
+      const deadAirResult = await onRemoveDeadAir();
+
+      // Step 2: Captions
+      setProcessingStatus('Generating captions...');
+      await onTranscribeAndAddCaptions(captionOptions);
+
+      // Step 3: Chapters
+      setProcessingStatus('Creating chapters...');
+      const chaptersResult = await onChapterCuts();
+
+      // Final Success Message
+      setChatHistory(prev => {
+        const updated = [...prev];
+        const lastIdx = updated.length - 1;
+        if (updated[lastIdx]?.isProcessingGifs) {
+          updated[lastIdx] = {
+            ...updated[lastIdx],
+            text: `🎉 Auto-Edit Complete!\n\nHere's what I did:\n- Removed ${deadAirResult.removedDuration.toFixed(1)}s of dead air\n- Added animated captions (Font: ${captionOptions.fontFamily})\n- Created ${chaptersResult.chapters.length} chapters and cuts\n\nYour video is ready for review!`,
+            isProcessingGifs: false,
+            applied: true,
+          };
+        }
+        return updated;
+      });
+
+    } catch (error) {
+      console.error('Auto-edit workflow error:', error);
+      setChatHistory(prev => [...prev, {
+        type: 'assistant',
+        text: `❌ Auto-edit failed: ${error instanceof Error ? error.message : 'Unknown error'}\n\nPlease try running the steps individually.`,
+      }]);
+    } finally {
+      setIsProcessing(false);
+      setProcessingStatus('');
+    }
+  };
+
   // Handle transcript animation workflow (kinetic typography from speech)
   const handleTranscriptAnimationWorkflow = async () => {
     if (!onGenerateTranscriptAnimation) return;
@@ -2134,6 +2221,19 @@ export default function AIPromptPanel({
         return;
       }
       await handleChapterCutWorkflow();
+      return;
+    }
+
+    // Auto-edit
+    if (workflow === 'auto-edit') {
+      if (!hasVideo) {
+        setChatHistory(prev => [...prev, {
+          type: 'assistant',
+          text: 'Please upload a video first. I\'ll then perform a complete auto-edit pass.',
+        }]);
+        return;
+      }
+      await handleAutoEditWorkflow();
       return;
     }
 
@@ -2990,4 +3090,6 @@ export default function AIPromptPanel({
       )}
     </div>
   );
-}
+});
+
+export default AIPromptPanel;

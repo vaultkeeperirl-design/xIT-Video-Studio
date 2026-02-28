@@ -4,7 +4,7 @@ import Timeline from '@/react-app/components/Timeline';
 import AssetLibrary from '@/react-app/components/AssetLibrary';
 import ClipPropertiesPanel from '@/react-app/components/ClipPropertiesPanel';
 import CaptionPropertiesPanel from '@/react-app/components/CaptionPropertiesPanel';
-import AIPromptPanel from '@/react-app/components/AIPromptPanel';
+import AIPromptPanel, { AIPromptPanelHandle } from '@/react-app/components/AIPromptPanel';
 import AIImageLabPanel from '@/react-app/components/AIImageLabPanel';
 import AIVideoLabPanel from '@/react-app/components/AIVideoLabPanel';
 import GifSearchPanel from '@/react-app/components/GifSearchPanel';
@@ -54,6 +54,7 @@ export default function Home() {
   const [reframeConfig, setReframeConfig] = useState<Record<string, ReframeState>>({});
 
   const videoPreviewRef = useRef<VideoPreviewHandle>(null);
+  const aiPromptPanelRef = useRef<AIPromptPanelHandle>(null);
   const playbackRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
 
@@ -1792,7 +1793,10 @@ export default function Home() {
         onSplitClip={handleCutAtPlayhead}
         onAutoEdit={() => {
           setActiveAgent('director');
-          // TODO: Trigger auto-edit specific function if available, or just open panel
+          // Give the panel a tiny bit of time to render if it was hidden
+          setTimeout(() => {
+            aiPromptPanelRef.current?.triggerAutoEdit();
+          }, 100);
         }}
         onGenerateChapters={handleGenerateChapters}
         onGenerateBroll={handleGenerateBroll}
@@ -2079,6 +2083,7 @@ export default function Home() {
             <div className="flex-1 overflow-hidden relative">
               <div className={`absolute inset-0 ${activeAgent === 'director' ? '' : 'hidden'}`}>
                 <AIPromptPanel
+                  ref={aiPromptPanelRef}
                   onApplyEdit={handleApplyEdit}
                   onExtractKeywordsAndAddGifs={handleExtractKeywordsAndAddGifs}
                   onTranscribeAndAddCaptions={handleTranscribeAndAddCaptions}
