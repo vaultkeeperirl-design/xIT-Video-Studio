@@ -1165,39 +1165,6 @@ const AIPromptPanel = forwardRef<AIPromptPanelHandle, AIPromptPanelProps>(({
     }
   };
 
-  // Poll for job completion
-  const pollForResult = async (jobId: string, maxAttempts = 60): Promise<any> => {
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      setProcessingStatus(`AI is working... (${attempt + 1}s)`);
-
-      try {
-        const response = await fetch(`/api/ai-edit/status/${jobId}`);
-        if (!response.ok) {
-          throw new Error(`Status check failed: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (data.status === 'complete') {
-          return data;
-        }
-
-        if (data.status === 'error') {
-          throw new Error(data.error || 'Processing failed');
-        }
-
-        // Still processing, wait and try again
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      } catch (error) {
-        // On network error, wait and retry
-        console.error('Poll error:', error);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
-    }
-
-    throw new Error('Request timed out after 60 seconds');
-  };
-
   // Handle the caption workflow
   const handleCaptionWorkflow = async () => {
     if (!onTranscribeAndAddCaptions) return;
@@ -2308,8 +2275,8 @@ const AIPromptPanel = forwardRef<AIPromptPanelHandle, AIPromptPanelProps>(({
     setProcessingStatus('Starting AI...');
 
     try {
-      // Start the job - use fullMessage which includes reference context
-      const startResponse = await fetch('/api/ai-edit/start', {
+      // Use the synchronous endpoint to avoid state loss in Cloudflare Workers
+      const startResponse = await fetch('/api/ai-edit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: fullMessage }),
@@ -2317,18 +2284,15 @@ const AIPromptPanel = forwardRef<AIPromptPanelHandle, AIPromptPanelProps>(({
 
       if (!startResponse.ok) {
         const errorText = await startResponse.text();
-        console.error('Start error:', startResponse.status, errorText);
-        throw new Error(`Failed to start: ${startResponse.status}`);
+        console.error('AI request error:', startResponse.status, errorText);
+        throw new Error(`Failed to process request: ${startResponse.status}`);
       }
 
-      const { jobId } = await startResponse.json();
+      const data = await startResponse.json();
 
-      if (!jobId) {
-        throw new Error('No job ID returned');
+      if (data.error) {
+        throw new Error(data.error);
       }
-
-      // Poll for the result
-      const data = await pollForResult(jobId);
 
       setChatHistory((prev) => [
         ...prev,

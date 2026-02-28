@@ -1,4 +1,4 @@
-name: Build Windows Exe
+name: Build Desktop Apps
 
 on:
   push:
@@ -8,8 +8,13 @@ on:
       - 'v*'
 
 jobs:
-  build-windows:
-    runs-on: windows-latest
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+      fail-fast: false
+
+    runs-on: ${{ matrix.os }}
     permissions:
       contents: write
 
@@ -22,6 +27,12 @@ jobs:
         with:
           node-version: 22
 
+      - name: Install system dependencies (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libvips-dev build-essential
+
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
@@ -30,17 +41,36 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Artifact
+      - name: Upload Artifact Windows
+        if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: xIT-Setup
+          name: xIT-Setup-Windows
           path: release/*.exe
 
-      - name: Release
+      - name: Upload Artifact Linux AppImage
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: xIT-Setup-Linux-AppImage
+          path: release/*.AppImage
+
+      - name: Release Windows
         uses: softprops/action-gh-release@v2
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && matrix.os == 'windows-latest'
         with:
           tag_name: latest
           name: Latest Build
           body: Automated build from main branch.
           files: release/*.exe
+
+      - name: Release Linux
+        uses: softprops/action-gh-release@v2
+        if: github.ref == 'refs/heads/main' && matrix.os == 'ubuntu-latest'
+        with:
+          tag_name: latest
+          name: Latest Build
+          append_body: true
+          files: |
+            release/*.AppImage
+            release/*.deb
