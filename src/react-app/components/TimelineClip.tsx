@@ -9,7 +9,7 @@ interface TimelineClipProps {
   isSelected: boolean;
   trackHeight: number;
   onSelect: (id: string) => void;
-  onMove: (id: string, newStart: number) => void;
+  onMove: (id: string, newStart: number, newTrackId?: string) => void;
   onResize: (id: string, newInPoint: number, newOutPoint: number, newStart?: number) => void;
   onDragStart?: () => void;
   onDragEnd: () => void;
@@ -79,6 +79,7 @@ const TimelineClip = memo(function TimelineClip({
 
     const clickX = e.clientX - rect.left;
     const handleWidth = 8;
+    const clickY = e.clientY;
 
     if (clickX < handleWidth) {
       // Left resize handle
@@ -98,6 +99,7 @@ const TimelineClip = memo(function TimelineClip({
       onDragStart?.();
       setIsDragging(true);
       setDragStartX(e.clientX);
+      // We don't track dragStartY because we use elementsFromPoint to find the track
       setInitialStart(clip.start);
     }
 
@@ -115,7 +117,37 @@ const TimelineClip = memo(function TimelineClip({
 
       if (isDragging) {
         const newStart = Math.max(0, initialStart + deltaTime);
-        onMove(clip.id, newStart);
+
+        // Find which track we are hovering over
+        let targetTrackId: string | undefined;
+        // The track element should have a data-track-id attribute (we'll add it in Timeline.tsx)
+        const elements = document.elementsFromPoint(e.clientX, e.clientY);
+        for (const el of elements) {
+          const trackId = el.getAttribute('data-track-id');
+          if (trackId) {
+            targetTrackId = trackId;
+            break;
+          }
+        }
+
+        // Optional validation: only allow moving video/image to video tracks, and audio to audio tracks
+        const clipType = isCaption ? 'caption' : asset?.type;
+        if (targetTrackId) {
+          const isTargetVideo = targetTrackId.startsWith('V');
+          const isTargetAudio = targetTrackId.startsWith('A');
+          const isTargetText = targetTrackId.startsWith('T');
+
+          let isValidTrack = false;
+          if (clipType === 'video' || clipType === 'image') isValidTrack = isTargetVideo;
+          if (clipType === 'audio') isValidTrack = isTargetAudio;
+          if (clipType === 'caption') isValidTrack = isTargetText;
+
+          if (!isValidTrack) {
+            targetTrackId = undefined; // Cancel track change if invalid
+          }
+        }
+
+        onMove(clip.id, newStart, targetTrackId);
       } else if (isResizingLeft) {
         // Resize from left - changes inPoint and start
         const newInPoint = Math.max(0, initialInPoint + deltaTime);

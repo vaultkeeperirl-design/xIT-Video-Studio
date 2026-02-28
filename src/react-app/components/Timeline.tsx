@@ -32,6 +32,7 @@ interface TimelineProps {
   onRedo?: () => void;
   onAutoReframe?: () => void;
   onDragStart?: () => void;
+  onOpenSettings?: () => void;
 }
 
 const TRACK_HEIGHTS: Record<string, number> = {
@@ -75,6 +76,7 @@ export default function Timeline({
   onRedo,
   onAutoReframe,
   onDragStart,
+  onOpenSettings,
 }: TimelineProps) {
   const [zoom, setZoom] = useState(1);
   const [isDraggingPlayhead, setIsDraggingPlayhead] = useState(false);
@@ -344,21 +346,21 @@ export default function Timeline({
           <button
             className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title="Audio (A)"
-            disabled={true}
+            onClick={() => alert("Feature coming soon")}
           >
             <Volume2 className="w-3 h-3" />
           </button>
           <button
             className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title="Color (C)"
-            disabled={true}
+            onClick={() => alert("Feature coming soon")}
           >
             <Palette className="w-3 h-3" />
           </button>
           <button
             className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title="Effects (E)"
-            disabled={true}
+            onClick={() => alert("Feature coming soon")}
           >
             <Wand2 className="w-3 h-3" />
           </button>
@@ -373,7 +375,7 @@ export default function Timeline({
           <button
             className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title="Settings (,)"
-            disabled={true}
+            onClick={onOpenSettings}
           >
             <Settings className="w-3 h-3" />
           </button>
@@ -468,16 +470,16 @@ export default function Timeline({
         {/* Scrollable tracks area */}
         <div
           ref={tracksContainerRef}
-          className="flex-1 overflow-auto"
+          className="flex-1 overflow-auto bg-zinc-950"
           onMouseMove={handleMouseMove}
         >
           <div
-            className="relative"
+            className="relative flex flex-col"
             style={{ width: timelineWidth, minHeight: '100%' }}
           >
             {/* Time ruler */}
             <div
-              className="sticky top-0 h-6 bg-zinc-900/95 border-b border-zinc-800 z-30"
+              className="sticky top-0 h-6 bg-zinc-900/95 border-b border-zinc-800 z-30 flex-shrink-0"
               onClick={handleTimelineClick}
             >
               {Array.from({ length: tickCount }).map((_, i) => {
@@ -497,7 +499,7 @@ export default function Timeline({
             </div>
 
             {/* Tracks */}
-            <div onClick={handleTimelineClick}>
+            <div onClick={handleTimelineClick} className="flex-1">
               {sortedTracks.map(track => {
                 const trackClips = getTrackClips(track.id);
                 const isDragOver = dragOverTrack === track.id;
@@ -505,6 +507,7 @@ export default function Timeline({
                 return (
                   <div
                     key={track.id}
+                    data-track-id={track.id}
                     className={`relative border-b border-zinc-800/50 ${
                       isDragOver ? 'bg-brand-500/10' : 'bg-zinc-900/30'
                     }`}
