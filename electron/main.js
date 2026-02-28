@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import isDev from 'electron-is-dev';
@@ -80,14 +80,18 @@ function createWindow() {
   // Wait for the window to be ready to show
   mainWindow.once('ready-to-show', () => {
     if (splashWindow) {
-      splashWindow.webContents.send('status', 'Launching...');
+      splashWindow.webContents.send('status', 'Ready - Click to close');
       splashWindow.webContents.send('progress', 100);
 
-      // Slight delay for better UX
+      // Show mainWindow immediately in the background
+      mainWindow.show();
+
+      // Close splash screen automatically after 5 seconds if not closed by user
       setTimeout(() => {
-        if (splashWindow) splashWindow.close();
-        mainWindow.show();
-      }, 800);
+        if (splashWindow && !splashWindow.isDestroyed()) {
+          splashWindow.close();
+        }
+      }, 5000);
     } else {
       mainWindow.show();
     }
@@ -166,6 +170,12 @@ function startServer() {
     console.error(`[Server ERR]: ${data}`);
   });
 }
+
+ipcMain.on('close-splash', () => {
+  if (splashWindow && !splashWindow.isDestroyed()) {
+    splashWindow.close();
+  }
+});
 
 app.on('ready', () => {
   createSplashWindow();

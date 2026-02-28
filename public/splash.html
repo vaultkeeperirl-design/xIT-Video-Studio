@@ -35,6 +35,11 @@
             position: relative;
         }
 
+        body.ready {
+            cursor: pointer;
+            -webkit-app-region: no-drag;
+        }
+
         .container {
             text-align: center;
             display: flex;
@@ -165,10 +170,22 @@
         const statusText = document.getElementById('status');
         const versionText = document.getElementById('version-text');
 
+        let isReady = false;
+
+        document.body.addEventListener('click', () => {
+            if (isReady && window.electron && window.electron.closeSplash) {
+                window.electron.closeSplash();
+            }
+        });
+
         if (window.electron) {
             window.electron.onProgress((value) => {
                 const scale = value / 100;
                 loaderBar.style.transform = `scaleX(${scale})`;
+                if (value >= 100) {
+                    isReady = true;
+                    document.body.classList.add('ready');
+                }
             });
 
             window.electron.onStatus((status) => {
@@ -186,7 +203,9 @@
                 loaderBar.style.transform = `scaleX(${progress / 100})`;
                 if (progress >= 100) {
                     clearInterval(interval);
-                    statusText.innerText = "SYSTEM READY";
+                    statusText.innerText = "READY - CLICK TO CLOSE";
+                    isReady = true;
+                    document.body.classList.add('ready');
                 }
             }, 100);
             versionText.innerText = "VERSION 0.0.8";
