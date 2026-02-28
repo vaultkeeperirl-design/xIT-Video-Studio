@@ -91,6 +91,7 @@ export default function Home() {
     getCaptionData,
     // Face tracking
     faceTrackingData,
+    detectFaces,
     // Timeline tabs
     timelineTabs,
     activeTabId,
@@ -135,6 +136,47 @@ export default function Home() {
       loadProject();
     }
   }, [session, loadProject]);
+
+  // Handle auto-reframe click directly on the timeline
+  const handleAutoReframeToggle = useCallback(async () => {
+    if (!selectedClipId) return;
+
+    const clip = clips.find(c => c.id === selectedClipId);
+    if (!clip) return;
+
+    const asset = assets.find(a => a.id === clip.assetId);
+    if (!asset || asset.type !== 'video') {
+      alert('Auto-reframe is only available for video clips.');
+      return;
+    }
+
+    // Toggle logic: if already enabled, just disable it
+    const currentConfig = reframeConfig[selectedClipId];
+    if (currentConfig?.enabled) {
+      setReframeConfig(prev => ({
+        ...prev,
+        [selectedClipId]: { ...prev[selectedClipId], enabled: false }
+      }));
+      return;
+    }
+
+    // Detect faces and enable
+    try {
+      const tracks = await detectFaces(asset.id);
+
+      setReframeConfig(prev => ({
+        ...prev,
+        [selectedClipId]: {
+          enabled: true,
+          activeFaceTrackId: tracks.length > 0 ? tracks[0].id : null,
+          mode: tracks.length > 1 ? 'group' : 'single'
+        }
+      }));
+    } catch (err) {
+      console.error('Face detection failed', err);
+      alert('Failed to detect faces in this video.');
+    }
+  }, [selectedClipId, clips, assets, reframeConfig, detectFaces]);
 
   // Handle reframe configuration updates
   const handleUpdateReframeConfig = useCallback((clipId: string, configUpdates: Partial<ReframeState>) => {
@@ -2028,8 +2070,9 @@ export default function Home() {
               onDuplicate={() => {}}
               onUndo={() => {}}
               onRedo={() => {}}
-              onAutoReframe={() => setShowReframeTool(!showReframeTool)}
+              onAutoReframe={handleAutoReframeToggle}
               onDragStart={snapshotClips}
+              onOpenSettings={() => setShowSettings(true)}
             />
           </ResizableVerticalPanel>
         </div>
