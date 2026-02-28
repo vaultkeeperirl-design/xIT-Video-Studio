@@ -35,6 +35,7 @@ interface ReframeState {
 
 export default function Home() {
   const [selectedClipId, setSelectedClipId] = useState<string | null>(null);
+  const [selectedTrackId, setSelectedTrackId] = useState<string | null>(null);
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -563,11 +564,15 @@ export default function Home() {
   }, [deleteClip, selectedClipId, autoSnap, activeTabId, timelineTabs, updateTabClips]);
 
   // Handle cutting clips at the playhead position
-  const handleCutAtPlayhead = useCallback(() => {
+  const handleCutAtPlayhead = useCallback((trackId?: string | null) => {
     // Find all clips that are under the playhead
-    const clipsAtPlayhead = clips.filter(clip =>
+    let clipsAtPlayhead = clips.filter(clip =>
       currentTime > clip.start && currentTime < clip.start + clip.duration
     );
+
+    if (trackId) {
+      clipsAtPlayhead = clipsAtPlayhead.filter(clip => clip.trackId === trackId);
+    }
 
     if (clipsAtPlayhead.length === 0) {
       return; // No clips to cut
@@ -605,9 +610,15 @@ export default function Home() {
   // Handle selecting clip
   const handleSelectClip = useCallback((clipId: string | null) => {
     setSelectedClipId(clipId);
+    if (clipId) {
+      const clip = clips.find(c => c.id === clipId);
+      if (clip) {
+        setSelectedTrackId(clip.trackId);
+      }
+    }
     // Clear asset preview mode - let timeline-based preview take over
     setPreviewAssetId(null);
-  }, []);
+  }, [clips]);
 
   // Handle updating clip transform (scale, rotation, crop, etc.)
   const handleUpdateClipTransform = useCallback((clipId: string, transform: TimelineClip['transform']) => {
@@ -1683,11 +1694,27 @@ export default function Home() {
         e.preventDefault();
         if (canRedo) redo();
       }
+
+      // 'c' or 'C' for Split
+      // Only process 'c' if not typing in an input field
+      const target = e.target as HTMLElement;
+      const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+
+      if (!isInput && e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          // Shift+C: split all tracks
+          handleCutAtPlayhead();
+        } else {
+          // C: split selected track (if any) or all if none selected (fallback/convenience)
+          handleCutAtPlayhead(selectedTrackId);
+        }
+      }
     };
 
     window.addEventListener('keydown', handleGlobalKeyDown);
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-  }, [handleExport, undo, redo, canUndo, canRedo]);
+  }, [handleExport, undo, redo, canUndo, canRedo, handleCutAtPlayhead, selectedTrackId]);
 
   // Handle TikTok Export
   const handleTiktokExport = useCallback(async () => {
@@ -1832,7 +1859,7 @@ export default function Home() {
         onTiktokExport={handleTiktokExport}
         onOpenSettings={() => setShowSettings(true)}
         onDeleteSelected={() => selectedClipId && handleDeleteClip(selectedClipId)}
-        onSplitClip={handleCutAtPlayhead}
+        onSplitClip={() => handleCutAtPlayhead(selectedTrackId)}
         onAutoEdit={() => {
           setActiveAgent('director');
           // Give the panel a tiny bit of time to render if it was hidden
@@ -2048,18 +2075,20 @@ export default function Home() {
               clips={activeClips}
               assets={assets}
               selectedClipId={selectedClipId}
+              selectedTrackId={selectedTrackId}
               currentTime={currentTime}
               duration={duration}
               isPlaying={isPlaying}
               aspectRatio={aspectRatio}
               onSelectClip={handleSelectClip}
+              onSelectTrack={setSelectedTrackId}
               onTimeChange={handleTimelineSeek}
               onPlayPause={handlePlayPause}
               onStop={handleStop}
               onMoveClip={handleMoveClip}
               onResizeClip={handleResizeClip}
               onDeleteClip={handleDeleteClip}
-              onCutAtPlayhead={handleCutAtPlayhead}
+              onCutAtPlayhead={() => handleCutAtPlayhead(selectedTrackId)}
               onAddText={handleAddText}
               onToggleAspectRatio={handleToggleAspectRatio}
               autoSnap={autoSnap}

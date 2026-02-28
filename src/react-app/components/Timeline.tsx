@@ -8,11 +8,13 @@ interface TimelineProps {
   clips: TimelineClipType[];
   assets: Asset[];
   selectedClipId: string | null;
+  selectedTrackId: string | null;
   currentTime: number;
   duration: number;
   isPlaying: boolean;
   aspectRatio: '16:9' | '9:16';
   onSelectClip: (id: string | null) => void;
+  onSelectTrack: (id: string | null) => void;
   onTimeChange: (time: number) => void;
   onPlayPause: () => void;
   onStop: () => void;
@@ -52,11 +54,13 @@ export default function Timeline({
   clips,
   assets,
   selectedClipId,
+  selectedTrackId,
   currentTime,
   duration,
   isPlaying,
   aspectRatio,
   onSelectClip,
+  onSelectTrack,
   onTimeChange,
   onPlayPause,
   onStop,
@@ -445,10 +449,15 @@ export default function Timeline({
                 trackColorClass = 'text-purple-400';
               }
 
+              const isSelected = selectedTrackId === track.id;
+
               return (
                 <div
                   key={track.id}
-                  className="flex items-center justify-start pl-3 gap-2 text-xs font-medium text-zinc-400 border-b border-zinc-800/50"
+                  onClick={() => onSelectTrack(track.id)}
+                  className={`flex items-center justify-start pl-3 gap-2 text-xs font-medium border-b border-zinc-800/50 cursor-pointer transition-colors ${
+                    isSelected ? 'bg-zinc-800/80 text-zinc-200 border-l-2 border-l-brand-500' : 'text-zinc-400 hover:bg-zinc-800/30'
+                  }`}
                   style={{ height: TRACK_HEIGHTS[track.type] }}
                 >
                   <TrackIcon className={`w-3.5 h-3.5 ${trackColorClass}`} />
@@ -510,13 +519,21 @@ export default function Timeline({
               {sortedTracks.map(track => {
                 const trackClips = getTrackClips(track.id);
                 const isDragOver = dragOverTrack === track.id;
+                const isSelected = selectedTrackId === track.id;
 
                 return (
                   <div
                     key={track.id}
                     data-track-id={track.id}
-                    className={`relative border-b border-zinc-800/50 ${
-                      isDragOver ? 'bg-brand-500/10' : 'bg-zinc-900/30'
+                    onClick={(e) => {
+                      // Stop propagation so it doesn't trigger the general timeline click
+                      e.stopPropagation();
+                      onSelectTrack(track.id);
+                      // Still allow standard playhead jumping logic
+                      handleTimelineClick(e);
+                    }}
+                    className={`relative border-b border-zinc-800/50 transition-colors ${
+                      isDragOver ? 'bg-brand-500/10' : isSelected ? 'bg-zinc-800/40' : 'bg-zinc-900/30 hover:bg-zinc-800/20'
                     }`}
                     style={{ height: TRACK_HEIGHTS[track.type] }}
                     onDragOver={(e) => handleDragOver(e, track.id)}
