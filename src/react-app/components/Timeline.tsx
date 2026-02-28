@@ -146,6 +146,13 @@ export default function Timeline({
     [tracks]
   );
 
+  // Calculate snapping points (playhead + edges of all clips + 0)
+  const snapPoints = [
+    0,
+    currentTime,
+    ...clips.flatMap(c => [c.start, c.start + c.duration])
+  ].sort((a, b) => a - b);
+
   // Get clips for a specific track
   const getTrackClips = useCallback((trackId: string) =>
     clips.filter(c => c.trackId === trackId),
@@ -552,6 +559,9 @@ export default function Timeline({
                         .map(w => w.text)
                         .join(' ') + (captionData && captionData.words.length > 5 ? '...' : '');
 
+                      // Filter out current clip's own snap points
+                      const clipSnapPoints = snapPoints.filter(p => p !== clip.start && p !== clip.start + clip.duration);
+
                       return (
                         <TimelineClip
                           key={clip.id}
@@ -568,6 +578,7 @@ export default function Timeline({
                           onDragEnd={onSave}
                           isCaption={isCaption}
                           captionPreview={captionPreview}
+                          snapPoints={clipSnapPoints}
                         />
                       );
                     })}

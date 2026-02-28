@@ -16,6 +16,7 @@ interface TimelineClipProps {
   onDelete: (id: string) => void;
   captionPreview?: string;  // For caption clips - first few words
   isCaption?: boolean;       // Whether this is a caption clip
+  snapPoints?: number[];     // Timecodes to snap to
 }
 
 const getAssetIcon = (type?: Asset['type'] | 'caption') => {
@@ -52,6 +53,7 @@ const TimelineClip = memo(function TimelineClip({
   onDelete,
   captionPreview,
   isCaption = false,
+  snapPoints = [],
 }: TimelineClipProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizingLeft, setIsResizingLeft] = useState(false);
@@ -115,7 +117,27 @@ const TimelineClip = memo(function TimelineClip({
       const deltaTime = deltaX / pixelsPerSecond;
 
       if (isDragging) {
-        const newStart = Math.max(0, initialStart + deltaTime);
+        let newStart = Math.max(0, initialStart + deltaTime);
+
+        // Snap logic (drag)
+        const snapThreshold = 10 / pixelsPerSecond; // 10 pixels snapping distance
+        const currentEnd = newStart + clip.duration;
+        let bestSnapStart = newStart;
+        let minDiff = snapThreshold;
+
+        for (const pt of snapPoints) {
+          if (Math.abs(newStart - pt) < minDiff) {
+            minDiff = Math.abs(newStart - pt);
+            bestSnapStart = pt;
+          }
+          if (Math.abs(currentEnd - pt) < minDiff) {
+            minDiff = Math.abs(currentEnd - pt);
+            bestSnapStart = pt - clip.duration;
+          }
+        }
+        if (bestSnapStart >= 0) {
+            newStart = bestSnapStart;
+        }
 
         // Find which track we are hovering over
         let targetTrackId: string | undefined;
@@ -149,18 +171,49 @@ const TimelineClip = memo(function TimelineClip({
         onMove(clip.id, newStart, targetTrackId);
       } else if (isResizingLeft) {
         // Resize from left - changes inPoint and start
-        const newInPoint = Math.max(0, initialInPoint + deltaTime);
+        let newInPoint = Math.max(0, initialInPoint + deltaTime);
         const maxInPoint = clip.outPoint - 0.1; // Minimum 0.1s duration
-        const clampedInPoint = Math.min(newInPoint, maxInPoint);
-        const inPointDelta = clampedInPoint - initialInPoint;
-        const newStart = initialStart + inPointDelta;
+        let clampedInPoint = Math.min(newInPoint, maxInPoint);
+        let inPointDelta = clampedInPoint - initialInPoint;
+        let newStart = initialStart + inPointDelta;
+
+        // Snapping for resize left
+        const snapThreshold = 10 / pixelsPerSecond;
+        for (const pt of snapPoints) {
+          if (Math.abs(newStart - pt) < snapThreshold) {
+            const snappedDelta = pt - initialStart;
+            const snappedInPoint = initialInPoint + snappedDelta;
+            if (snappedInPoint >= 0 && snappedInPoint <= maxInPoint) {
+               newStart = pt;
+               clampedInPoint = snappedInPoint;
+               break;
+            }
+          }
+        }
         onResize(clip.id, clampedInPoint, clip.outPoint, Math.max(0, newStart));
       } else if (isResizingRight) {
         // Resize from right - changes outPoint
-        const newOutPoint = initialOutPoint + deltaTime;
+        let newOutPoint = initialOutPoint + deltaTime;
         const minOutPoint = clip.inPoint + 0.1; // Minimum 0.1s duration
         const maxOutPoint = asset?.duration ?? Infinity;
-        const clampedOutPoint = Math.min(Math.max(newOutPoint, minOutPoint), maxOutPoint);
+        let clampedOutPoint = Math.min(Math.max(newOutPoint, minOutPoint), maxOutPoint);
+
+        // Output duration = outPoint - inPoint
+        // New end time = clip.start + (newOutPoint - clip.inPoint)
+        let newEnd = clip.start + (clampedOutPoint - clip.inPoint);
+
+        // Snapping for resize right
+        const snapThreshold = 10 / pixelsPerSecond;
+        for (const pt of snapPoints) {
+          if (Math.abs(newEnd - pt) < snapThreshold) {
+             const snappedDuration = pt - clip.start;
+             const snappedOutPoint = clip.inPoint + snappedDuration;
+             if (snappedOutPoint >= minOutPoint && snappedOutPoint <= maxOutPoint) {
+                 clampedOutPoint = snappedOutPoint;
+                 break;
+             }
+          }
+        }
         onResize(clip.id, clip.inPoint, clampedOutPoint);
       }
     };
