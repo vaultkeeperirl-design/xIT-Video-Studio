@@ -59,7 +59,20 @@ function interpolate(t: number, kf1: { t: number, val: number }, kf2: { t: numbe
   return kf1.val + (kf2.val - kf1.val) * progress;
 }
 
-// Helper to build CSS styles from transform
+/**
+ * Calculates CSS transformation styles for video layers to handle scaling, rotation, positioning, and cropping.
+ *
+ * **Why use `reframeOverride`?**
+ * When the Auto-Reframe (Face Tracking) feature is enabled for a 9:16 vertical video export of a 16:9 source,
+ * it replaces the standard clip transform with a dynamic scale and X-axis offset. This ensures the subject
+ * remains centered within the cropped viewport without displaying black bars.
+ *
+ * @param transform - The standard transformation properties applied by the user (scale, rotation, crop, etc.).
+ * @param zIndex - The layer stack position (e.g., base video is 1, overlay is 2+).
+ * @param isDragging - If true, adds a 'grabbing' cursor style to indicate active interaction.
+ * @param reframeOverride - Overrides `x` and `scale` properties dynamically based on face tracking data.
+ * @returns A React CSS properties object with `transform`, `clipPath`, and visual indicators.
+ */
 function getTransformStyles(
   transform?: ClipTransform,
   zIndex: number = 0,
@@ -162,7 +175,32 @@ const VideoPreview = forwardRef<VideoPreviewHandle, VideoPreviewProps>(({
     getVideoElement: () => videoRef.current,
   }));
 
-  // Auto-Reframe Calculation
+  /**
+   * Calculates dynamic scaling and panning offsets to keep tracked faces centered when converting
+   * 16:9 landscape videos into 9:16 vertical format ("Auto-Reframe").
+   *
+   * **The Mathematical "Why" Behind the Calculation:**
+   *
+   * 1. **Zoom to Fill (Scale):**
+   *    To fill a 9:16 container with a 16:9 video (simulating `object-fit: cover` on a centered video),
+   *    the video must be scaled up significantly so its height matches the container height.
+   *    - Container Ratio = 9/16 (0.5625)
+   *    - Video Ratio = 16/9 (1.777)
+   *    - Target Scale = `(16/9) / (9/16)` ≈ 3.16x
+   *
+   * 2. **Pixel Offset (Pan):**
+   *    Once scaled, the video is much wider than the container. We translate the X-axis (in pixels)
+   *    to center the interpolated face coordinates.
+   *    - We calculate the face's pixel position relative to the scaled video's full width.
+   *    - We then determine the offset needed to move that pixel to the container's horizontal center.
+   *
+   * 3. **Clamping (Preventing Black Bars):**
+   *    To ensure the panning never reveals the edges of the video (black bars), the X offset is
+   *    mathematically clamped to `(targetVideoWidth - containerWidth) / 2` in both directions.
+   *
+   * @param clipTime - The current playback time to interpolate face keyframes.
+   * @returns An object containing the required `x` offset in pixels and the `scale` factor, or `undefined` if disabled.
+   */
   const getReframeTransform = useCallback((clipTime: number): { x: number, scale: number } | undefined => {
     if (!reframeConfig?.isEnabled || aspectRatio !== '9:16') {
       return undefined;
