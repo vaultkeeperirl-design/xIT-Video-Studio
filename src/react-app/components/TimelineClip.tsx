@@ -16,7 +16,7 @@ interface TimelineClipProps {
   onDelete: (id: string) => void;
   captionPreview?: string;  // For caption clips - first few words
   isCaption?: boolean;       // Whether this is a caption clip
-  snapPoints?: number[];     // Timecodes to snap to
+  getSnapPoints?: (start: number, end: number) => number[];     // Function to get timecodes to snap to
 }
 
 const getAssetIcon = (type?: Asset['type'] | 'caption') => {
@@ -53,7 +53,7 @@ const TimelineClip = memo(function TimelineClip({
   onDelete,
   captionPreview,
   isCaption = false,
-  snapPoints = [],
+  getSnapPoints,
 }: TimelineClipProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizingLeft, setIsResizingLeft] = useState(false);
@@ -125,6 +125,8 @@ const TimelineClip = memo(function TimelineClip({
         let bestSnapStart = newStart;
         let minDiff = snapThreshold;
 
+        const snapPoints = getSnapPoints ? getSnapPoints(clip.start, clip.start + clip.duration) : [];
+
         for (const pt of snapPoints) {
           if (Math.abs(newStart - pt) < minDiff) {
             minDiff = Math.abs(newStart - pt);
@@ -179,6 +181,7 @@ const TimelineClip = memo(function TimelineClip({
 
         // Snapping for resize left
         const snapThreshold = 10 / pixelsPerSecond;
+        const snapPoints = getSnapPoints ? getSnapPoints(clip.start, clip.start + clip.duration) : [];
         for (const pt of snapPoints) {
           if (Math.abs(newStart - pt) < snapThreshold) {
             const snappedDelta = pt - initialStart;
@@ -204,6 +207,7 @@ const TimelineClip = memo(function TimelineClip({
 
         // Snapping for resize right
         const snapThreshold = 10 / pixelsPerSecond;
+        const snapPoints = getSnapPoints ? getSnapPoints(clip.start, clip.start + clip.duration) : [];
         for (const pt of snapPoints) {
           if (Math.abs(newEnd - pt) < snapThreshold) {
              const snappedDuration = pt - clip.start;

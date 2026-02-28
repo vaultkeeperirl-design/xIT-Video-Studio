@@ -4,7 +4,7 @@
   "description": "An AI-powered video editor",
   "author": "xIT",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "electron/main.js",
   "type": "module",
   "dependencies": {

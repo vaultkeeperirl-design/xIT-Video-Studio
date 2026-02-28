@@ -150,12 +150,21 @@ export default function Timeline({
     [tracks]
   );
 
-  // Calculate snapping points (playhead + edges of all clips + 0)
-  const snapPoints = [
-    0,
-    currentTime,
-    ...clips.flatMap(c => [c.start, c.start + c.duration])
-  ].sort((a, b) => a - b);
+  // ⚡ Bolt: Use a ref for current time to avoid recreating snap points on every frame
+  // This prevents O(N^2) array creation and O(N) re-renders of TimelineClip during playback
+  const currentTimeRef = useRef(currentTime);
+  useEffect(() => {
+    currentTimeRef.current = currentTime;
+  }, [currentTime]);
+
+  const getSnapPoints = useCallback((clipStart: number, clipEnd: number) => {
+    const points = [
+      0,
+      currentTimeRef.current,
+      ...clips.flatMap(c => [c.start, c.start + c.duration])
+    ];
+    return points.filter(p => p !== clipStart && p !== clipEnd).sort((a, b) => a - b);
+  }, [clips]);
 
   // Get clips for a specific track
   const getTrackClips = useCallback((trackId: string) =>
@@ -576,9 +585,6 @@ export default function Timeline({
                         .map(w => w.text)
                         .join(' ') + (captionData && captionData.words.length > 5 ? '...' : '');
 
-                      // Filter out current clip's own snap points
-                      const clipSnapPoints = snapPoints.filter(p => p !== clip.start && p !== clip.start + clip.duration);
-
                       return (
                         <TimelineClip
                           key={clip.id}
@@ -595,7 +601,7 @@ export default function Timeline({
                           onDragEnd={onSave}
                           isCaption={isCaption}
                           captionPreview={captionPreview}
-                          snapPoints={clipSnapPoints}
+                          getSnapPoints={getSnapPoints}
                         />
                       );
                     })}
