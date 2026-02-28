@@ -4,7 +4,7 @@
   "description": "An AI-powered video editor",
   "author": "xIT",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "electron/main.js",
   "type": "module",
   "dependencies": {
@@ -49,6 +49,7 @@
     "@getmocha/users-service": "^0.0.4",
     "@getmocha/vite-plugins": "latest",
     "@remotion/cli": "^4.0.409",
+    "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "22.14.1",

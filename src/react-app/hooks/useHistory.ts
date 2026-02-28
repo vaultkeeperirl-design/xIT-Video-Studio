@@ -94,6 +94,7 @@ export function useHistory<T>(initialState: T) {
       return {
         ...currentState,
         present: value,
+        future: [],
       };
     });
   }, []);
