@@ -294,6 +294,14 @@ export default function Timeline({
               <Scissors className="w-3 h-3" />
             </button>
             <button
+              onClick={onDuplicate}
+              className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Duplicate selected clip"
+              disabled={!selectedClipId || !onDuplicate}
+            >
+              <Copy className="w-3 h-3" />
+            </button>
+            <button
               onClick={() => selectedClipId && onDeleteClip(selectedClipId)}
               disabled={!selectedClipId}
               className="p-1 bg-zinc-700 hover:bg-red-600 disabled:opacity-40 disabled:hover:bg-zinc-700 rounded transition-colors"
@@ -301,6 +309,24 @@ export default function Timeline({
             >
               <Trash2 className="w-3 h-3" />
             </button>
+            <div className="w-px h-4 bg-zinc-600 mx-1" />
+            <button
+              onClick={onUndo}
+              className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Undo (⌘Z)"
+              disabled={!onUndo}
+            >
+              <RotateCcw className="w-3 h-3" />
+            </button>
+            <button
+              onClick={onRedo}
+              className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Redo (⌘⇧Z)"
+              disabled={!onRedo}
+            >
+              <RotateCw className="w-3 h-3" />
+            </button>
+            <div className="w-px h-4 bg-zinc-600 mx-1" />
             <button
               onClick={onAddText}
               className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors"
@@ -319,7 +345,7 @@ export default function Timeline({
                 <RectangleVertical className="w-3 h-3" />
               )}
             </button>
-            <div className="w-px h-4 bg-zinc-600" />
+            <div className="w-px h-4 bg-zinc-600 mx-1" />
             <button
               onClick={onToggleAutoSnap}
               className={`p-1 rounded transition-colors ${
@@ -336,33 +362,6 @@ export default function Timeline({
               )}
             </button>
           </div>
-
-          <div className="w-px h-4 bg-zinc-600" />
-          <button
-            onClick={onDuplicate}
-            className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Duplicate (D)"
-            disabled={!selectedClipId || !onDuplicate}
-          >
-            <Copy className="w-3 h-3" />
-          </button>
-          <button
-            onClick={onUndo}
-            className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Undo (⌘Z)"
-            disabled={!onUndo}
-          >
-            <RotateCcw className="w-3 h-3" />
-          </button>
-          <button
-            onClick={onRedo}
-            className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Redo (⌘⇧Z)"
-            disabled={!onRedo}
-          >
-            <RotateCw className="w-3 h-3" />
-          </button>
-          <div className="w-px h-4 bg-zinc-600" />
           <button
             className="p-1 bg-zinc-700 hover:bg-zinc-600 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title="Audio (A)"
