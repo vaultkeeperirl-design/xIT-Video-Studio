@@ -2097,8 +2097,8 @@ export default function Home() {
               onSave={saveProject}
               getCaptionData={getCaptionData}
               onDuplicate={() => {}}
-              onUndo={() => {}}
-              onRedo={() => {}}
+              onUndo={canUndo ? undo : undefined}
+              onRedo={canRedo ? redo : undefined}
               onAutoReframe={handleAutoReframeToggle}
               onDragStart={snapshotClips}
               onOpenSettings={() => setShowSettings(true)}

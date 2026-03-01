@@ -12,9 +12,9 @@ def verify_ui_elements():
             page.goto("http://localhost:5173")
 
             # Wait for the page to load and the toolbar to be visible
-            # The toolbar has specific text content we can look for
+            # The toolbar has specific icons we can look for
             print("Waiting for toolbar...")
-            page.wait_for_selector("text=Split", timeout=30000)
+            page.wait_for_selector("button[title='Cut at playhead (split clip)']", timeout=30000)
 
             # Take a screenshot of the entire page
             print("Taking full page screenshot...")
@@ -22,8 +22,7 @@ def verify_ui_elements():
 
             # Take a screenshot of just the toolbar area
             # We'll try to find the container that holds the tools
-            # Based on the code: <div className="flex items-center gap-1 px-4 py-3 bg-zinc-900/30 border-b border-zinc-800/50">
-            toolbar = page.locator("text=Split").locator("..").locator("..")
+            toolbar = page.locator("button[title='Cut at playhead (split clip)']").locator("..").locator("..")
 
             print("Taking toolbar screenshot...")
             toolbar.screenshot(path="verification_toolbar.png")
