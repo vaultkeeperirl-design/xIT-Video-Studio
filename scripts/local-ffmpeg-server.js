@@ -7796,7 +7796,7 @@ const server = http.createServer(async (req, res) => {
   const origin = req.headers.origin;
   if (
     origin === 'null' ||
-    (origin && (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')))
+    (origin && (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1') || origin.startsWith('file://')))
   ) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   } else {
