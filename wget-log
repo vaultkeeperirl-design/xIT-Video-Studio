@@ -1,0 +1,29 @@
+failed: Connection timed out.
+Retrying.
+
+--2026-03-01 05:04:50--  (try: 4)  https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4
+Connecting to sample-videos.com (sample-videos.com)|103.145.51.95|:443... failed: Connection timed out.
+Retrying.
+
+--2026-03-01 05:07:08--  (try: 5)  https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4
+Connecting to sample-videos.com (sample-videos.com)|103.145.51.95|:443... failed: Connection timed out.
+Retrying.
+
+--2026-03-01 05:09:28--  (try: 6)  https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4
+Connecting to sample-videos.com (sample-videos.com)|103.145.51.95|:443... failed: Connection timed out.
+Retrying.
+
+--2026-03-01 05:11:48--  (try: 7)  https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4
+Connecting to sample-videos.com (sample-videos.com)|103.145.51.95|:443... failed: Connection timed out.
+Retrying.
+
+--2026-03-01 05:14:09--  (try: 8)  https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4
+Connecting to sample-videos.com (sample-videos.com)|103.145.51.95|:443... failed: Connection timed out.
+Retrying.
+
+--2026-03-01 05:16:31--  (try: 9)  https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4
+Connecting to sample-videos.com (sample-videos.com)|103.145.51.95|:443... failed: Connection timed out.
+Retrying.
+
+--2026-03-01 05:18:53--  (try:10)  https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4
+Connecting to sample-videos.com (sample-videos.com)|103.145.51.95|:443...

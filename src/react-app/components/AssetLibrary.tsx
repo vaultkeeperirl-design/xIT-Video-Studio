@@ -187,6 +187,7 @@ function AssetCard({ asset, isSelected, onSelect, onDelete, onDragStart }: Asset
 
   const handleDragStart = useCallback((e: React.DragEvent) => {
     e.dataTransfer.setData('application/x-hyperedit-asset', JSON.stringify(asset));
+    e.dataTransfer.setData(`application/x-hyperedit-asset-${asset.type}`, 'true');
     e.dataTransfer.effectAllowed = 'copy';
     onDragStart();
   }, [asset, onDragStart]);

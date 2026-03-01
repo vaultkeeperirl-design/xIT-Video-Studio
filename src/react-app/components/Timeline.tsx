@@ -208,6 +208,21 @@ export default function Timeline({
 
   // Handle drop from asset library
   const handleDragOver = useCallback((e: React.DragEvent, trackId: string) => {
+    // Check compatibility based on drag types
+    const hasVideo = e.dataTransfer.types.includes('application/x-hyperedit-asset-video');
+    const hasImage = e.dataTransfer.types.includes('application/x-hyperedit-asset-image');
+    const hasAudio = e.dataTransfer.types.includes('application/x-hyperedit-asset-audio');
+
+    // Only enforce rules if we detect our custom drag types
+    if (hasVideo || hasImage || hasAudio) {
+      const isAudioTrack = trackId.startsWith('A');
+      const isVideoTrack = trackId.startsWith('V');
+
+      if ((hasVideo || hasImage) && isAudioTrack) return;
+      if (hasAudio && isVideoTrack) return;
+      if ((hasVideo || hasImage || hasAudio) && trackId.startsWith('T')) return; // No dropping media on Text track
+    }
+
     e.preventDefault();
     e.stopPropagation();
     setDragOverTrack(trackId);

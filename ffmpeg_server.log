@@ -1,6 +1,14 @@
 [Server] No .dev.vars found at: /app/.dev.vars
 [Server] Restoring sessions from disk...
-[Server] Restored 0 sessions from disk
+[Session] Found saved metadata for 1 assets
+[Session] Restored: 61b8ce4d-d398-42ea-a3cc-462c9a4bd7e8 (1 assets)
+[Session] Found saved metadata for 2 assets
+[Session] Restored: a966e355-7bc4-46f6-84cd-e53eb40ca396 (2 assets)
+[Session] Found saved metadata for 1 assets
+[Session] Restored: b6fc80c9-02c3-446c-8071-02ab8bcbab14 (1 assets)
+[Session] Found saved metadata for 2 assets
+[Session] Restored: f78ad1f3-2a19-4ebc-9aa7-e13b9645554a (2 assets)
+[Server] Restored 4 sessions from disk
 
 🎬 Local FFmpeg server running at http://localhost:3333
 
@@ -37,3 +45,21 @@
    POST /session/:id/process-asset - Apply FFmpeg command to an asset
 
    GET /health - Health check
+
+[Session] Created: 148355e1-f647-45d1-96f5-b957a7db34b5
+[148355e1-f647-45d1-96f5-b957a7db34b5] Empty session created
+[mov,mp4,m4a,3gp,3g2,mj2 @ 0x55fd5878fb40] moov atom not found
+/tmp/hyperedit-ffmpeg/sessions/148355e1-f647-45d1-96f5-b957a7db34b5/assets/36cbc7c3-1c88-4ff9-8b81-0bb4d139c41a.mp4: Invalid data found when processing input
+[mov,mp4,m4a,3gp,3g2,mj2 @ 0x55c8f2900bc0] moov atom not found
+/tmp/hyperedit-ffmpeg/sessions/148355e1-f647-45d1-96f5-b957a7db34b5/assets/36cbc7c3-1c88-4ff9-8b81-0bb4d139c41a.mp4: Invalid data found when processing input
+[148355e1-f647-45d1-96f5-b957a7db34b5] Thumbnail generation failed: FFmpeg failed with code 183: .  3.100
+[mov,mp4,m4a,3gp,3g2,mj2 @ 0x55e5dcb7f280] Format mov,mp4,m4a,3gp,3g2,mj2 detected only with low score of 1, misdetection possible!
+[mov,mp4,m4a,3gp,3g2,mj2 @ 0x55e5dcb7f280] moov atom not found
+[in#0 @ 0x55e5dcb7f180] Error opening input: Invalid data found when processing input
+Error opening input file /tmp/hyperedit-ffmpeg/sessions/148355e1-f647-45d1-96f5-b957a7db34b5/assets/36cbc7c3-1c88-4ff9-8b81-0bb4d139c41a.mp4.
+Error opening input files: Invalid data found when processing input
+
+[148355e1-f647-45d1-96f5-b957a7db34b5] Asset uploaded: 36cbc7c3-1c88-4ff9-8b81-0bb4d139c41a (video, 0.0 MB)
+[Session] Created: 45abe1ed-4a98-4555-ae36-5debce8c4faa
+[45abe1ed-4a98-4555-ae36-5debce8c4faa] Empty session created
+[thumb] frame=    0 fps=0.0 q=3.0 size=       0kB time=00:00:00.00 bitrate=N/A speed=   0x[thumb] frame=    1 fps=0.0 q=3.0 Lsize=N/A time=00:00:00.00 bitrate=N/A speed=   0x[45abe1ed-4a98-4555-ae36-5debce8c4faa] Asset uploaded: c05dd600-9940-490c-9bbe-4a1fba41adda (video, 0.8 MB)

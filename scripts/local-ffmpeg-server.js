@@ -541,7 +541,6 @@ async function handleRemoveDeadAir(req, res) {
       res.writeHead(200, {
         'Content-Type': 'video/mp4',
         'Content-Length': outputStats.size,
-        'Access-Control-Allow-Origin': '*',
       });
       createReadStream(inputPath).pipe(res);
       return;
@@ -599,7 +598,6 @@ async function handleRemoveDeadAir(req, res) {
     res.writeHead(200, {
       'Content-Type': 'video/mp4',
       'Content-Length': outputStats.size,
-      'Access-Control-Allow-Origin': '*',
       'X-Removed-Duration': removedDuration.toFixed(2),
       'X-Original-Duration': totalDuration.toFixed(2),
       'X-New-Duration': totalKeptDuration.toFixed(2),
@@ -632,7 +630,6 @@ async function handleRemoveDeadAir(req, res) {
 
     res.writeHead(500, {
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
     });
     res.end(JSON.stringify({ error: error.message }));
   }
@@ -755,7 +752,6 @@ async function handleProcess(req, res) {
     res.writeHead(200, {
       'Content-Type': 'video/mp4',
       'Content-Length': outputStats.size,
-      'Access-Control-Allow-Origin': '*',
     });
 
     const readStream = createReadStream(outputPath);
@@ -781,7 +777,6 @@ async function handleProcess(req, res) {
 
     res.writeHead(500, {
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
     });
     res.end(JSON.stringify({ error: error.message }));
   }
@@ -809,7 +804,7 @@ async function handleGenerateChapters(req, res) {
     // Check for API key
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'GEMINI_API_KEY not configured in .dev.vars' }));
       return;
     }
@@ -825,7 +820,7 @@ async function handleGenerateChapters(req, res) {
 
     const videoFile = files.video?.[0];
     if (!videoFile) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Missing video file' }));
       return;
     }
@@ -939,7 +934,6 @@ Only return the JSON, no other text.`
     // Return the chapters
     res.writeHead(200, {
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
     });
     res.end(JSON.stringify({
       success: true,
@@ -967,7 +961,6 @@ Only return the JSON, no other text.`
 
     res.writeHead(500, {
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
     });
     res.end(JSON.stringify({ error: error.message }));
   }
@@ -983,7 +976,7 @@ async function handleSessionCreate(req, res) {
 
     console.log(`[${session.id}] Empty session created`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       sessionId: session.id,
@@ -991,7 +984,7 @@ async function handleSessionCreate(req, res) {
 
   } catch (error) {
     console.error('[Create] Error:', error.message);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -1009,7 +1002,7 @@ async function handleSessionUpload(req, res) {
     const videoFile = files.video?.[0];
 
     if (!videoFile) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Missing video file' }));
       return;
     }
@@ -1024,7 +1017,7 @@ async function handleSessionUpload(req, res) {
 
     console.log(`[${session.id}] Video uploaded: ${(stats.size / 1024 / 1024).toFixed(1)} MB, ${duration.toFixed(2)}s`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       sessionId: session.id,
@@ -1035,7 +1028,7 @@ async function handleSessionUpload(req, res) {
 
   } catch (error) {
     console.error('[Upload] Error:', error.message);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -1044,7 +1037,7 @@ async function handleSessionUpload(req, res) {
 async function handleSessionStream(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
@@ -1068,7 +1061,6 @@ async function handleSessionStream(req, res, sessionId) {
         'Accept-Ranges': 'bytes',
         'Content-Length': chunkSize,
         'Content-Type': 'video/mp4',
-        'Access-Control-Allow-Origin': '*',
       });
 
       createReadStream(session.currentVideo, { start, end }).pipe(res);
@@ -1076,13 +1068,12 @@ async function handleSessionStream(req, res, sessionId) {
       res.writeHead(200, {
         'Content-Length': fileSize,
         'Content-Type': 'video/mp4',
-        'Access-Control-Allow-Origin': '*',
       });
       createReadStream(session.currentVideo).pipe(res);
     }
   } catch (error) {
     console.error(`[${sessionId}] Stream error:`, error.message);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -1091,7 +1082,7 @@ async function handleSessionStream(req, res, sessionId) {
 async function handleSessionInfo(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
@@ -1101,7 +1092,7 @@ async function handleSessionInfo(req, res, sessionId) {
     const stats = await stat(session.currentVideo);
     const duration = await getVideoDuration(session.currentVideo);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       sessionId: session.id,
       duration,
@@ -1111,7 +1102,7 @@ async function handleSessionInfo(req, res, sessionId) {
       createdAt: session.createdAt,
     }));
   } catch (error) {
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -1120,7 +1111,7 @@ async function handleSessionInfo(req, res, sessionId) {
 async function handleSessionProcess(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
@@ -1132,7 +1123,7 @@ async function handleSessionProcess(req, res, sessionId) {
     const { command } = JSON.parse(body);
 
     if (!command) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Missing command' }));
       return;
     }
@@ -1166,7 +1157,7 @@ async function handleSessionProcess(req, res, sessionId) {
 
     console.log(`\n[${sessionId}] Edit complete. New duration: ${newDuration.toFixed(2)}s, Size: ${(newStats.size / 1024 / 1024).toFixed(1)} MB`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       duration: newDuration,
@@ -1176,7 +1167,7 @@ async function handleSessionProcess(req, res, sessionId) {
 
   } catch (error) {
     console.error(`[${sessionId}] Process error:`, error.message);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -1185,7 +1176,7 @@ async function handleSessionProcess(req, res, sessionId) {
 async function handleSessionRemoveDeadAir(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
@@ -1225,7 +1216,7 @@ async function handleSessionRemoveDeadAir(req, res, sessionId) {
     }
 
     if (!videoAsset) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'No video asset found in session. Please upload a video first.' }));
       return;
     }
@@ -1233,7 +1224,7 @@ async function handleSessionRemoveDeadAir(req, res, sessionId) {
     // Verify the video file exists on disk
     if (!existsSync(videoAsset.path)) {
       console.error(`[${jobId}] Video file missing: ${videoAsset.path}`);
-      res.writeHead(410, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(410, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
         error: 'Video file no longer exists. Your session may have expired. Please re-upload your video.',
         code: 'VIDEO_FILE_MISSING'
@@ -1253,7 +1244,7 @@ async function handleSessionRemoveDeadAir(req, res, sessionId) {
 
     if (silencePeriods.length === 0) {
       console.log(`[${jobId}] No silence detected`);
-      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
         success: true,
         duration: totalDuration,
@@ -1342,7 +1333,7 @@ async function handleSessionRemoveDeadAir(req, res, sessionId) {
 
     console.log(`\n[${jobId}] === DEAD AIR REMOVAL COMPLETE ===`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       duration: totalKeptDuration,
@@ -1355,7 +1346,7 @@ async function handleSessionRemoveDeadAir(req, res, sessionId) {
   } catch (error) {
     console.error(`[${jobId}] Error:`, error.message);
     segmentPaths.forEach(p => { try { unlinkSync(p); } catch {} });
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -1364,7 +1355,7 @@ async function handleSessionRemoveDeadAir(req, res, sessionId) {
 async function handleSessionChapters(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
@@ -1375,7 +1366,7 @@ async function handleSessionChapters(req, res, sessionId) {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'GEMINI_API_KEY not configured' }));
       return;
     }
@@ -1408,7 +1399,7 @@ async function handleSessionChapters(req, res, sessionId) {
     }
 
     if (!videoPath || !existsSync(videoPath)) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'No video found in session. Please upload a video first.' }));
       return;
     }
@@ -1506,7 +1497,7 @@ Return JSON: {"chapters": [{"start": 0, "title": "Introduction"}], "summary": "B
 
     console.log(`[${jobId}] Generated ${result.chapters?.length || 0} chapters`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       chapters: result.chapters || [],
@@ -1518,7 +1509,7 @@ Return JSON: {"chapters": [{"start": 0, "title": "Introduction"}], "summary": "B
   } catch (error) {
     console.error(`[${jobId}] Error:`, error.message);
     try { unlinkSync(audioPath); } catch {}
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -1527,7 +1518,7 @@ Return JSON: {"chapters": [{"start": 0, "title": "Introduction"}], "summary": "B
 async function handleSessionDownload(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
@@ -1542,14 +1533,13 @@ async function handleSessionDownload(req, res, sessionId) {
       'Content-Type': 'video/mp4',
       'Content-Length': stats.size,
       'Content-Disposition': `attachment; filename="${filename}"`,
-      'Access-Control-Allow-Origin': '*',
     });
 
     createReadStream(session.currentVideo).pipe(res);
     console.log(`[${sessionId}] Downloading: ${filename}`);
 
   } catch (error) {
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -1557,7 +1547,7 @@ async function handleSessionDownload(req, res, sessionId) {
 // Delete session
 function handleSessionDelete(req, res, sessionId) {
   cleanupSession(sessionId);
-  res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+  res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ success: true }));
 }
 
@@ -1613,7 +1603,7 @@ async function getMediaInfo(inputPath) {
 async function handleAssetUpload(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
@@ -1629,7 +1619,7 @@ async function handleAssetUpload(req, res, sessionId) {
     const uploadedFile = files.file?.[0] || files.video?.[0];
 
     if (!uploadedFile) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Missing file' }));
       return;
     }
@@ -1691,7 +1681,7 @@ async function handleAssetUpload(req, res, sessionId) {
 
     console.log(`[${sessionId}] Asset uploaded: ${assetId} (${type}, ${(stats.size / 1024 / 1024).toFixed(1)} MB)`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       asset: {
@@ -1708,7 +1698,7 @@ async function handleAssetUpload(req, res, sessionId) {
 
   } catch (error) {
     console.error(`[${sessionId}] Asset upload error:`, error.message);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -1717,7 +1707,7 @@ async function handleAssetUpload(req, res, sessionId) {
 function handleAssetList(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
@@ -1734,7 +1724,7 @@ function handleAssetList(req, res, sessionId) {
     aiGenerated: asset.aiGenerated || false, // True for Remotion-generated animations
   }));
 
-  res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+  res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ assets }));
 }
 
@@ -1742,14 +1732,14 @@ function handleAssetList(req, res, sessionId) {
 function handleAssetDelete(req, res, sessionId, assetId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
 
   const asset = session.assets.get(assetId);
   if (!asset) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Asset not found' }));
     return;
   }
@@ -1771,7 +1761,7 @@ function handleAssetDelete(req, res, sessionId, assetId) {
 
   console.log(`[${sessionId}] Asset deleted: ${assetId}`);
 
-  res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+  res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ success: true }));
 }
 
@@ -1779,14 +1769,14 @@ function handleAssetDelete(req, res, sessionId, assetId) {
 async function handleAssetThumbnail(req, res, sessionId, assetId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
 
   const asset = session.assets.get(assetId);
   if (!asset || !asset.thumbPath || !existsSync(asset.thumbPath)) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Thumbnail not found' }));
     return;
   }
@@ -1798,7 +1788,6 @@ async function handleAssetThumbnail(req, res, sessionId, assetId) {
     'Content-Type': 'image/jpeg',
     'Content-Length': stats.size,
     'Cache-Control': 'public, max-age=3600',
-    'Access-Control-Allow-Origin': '*',
   });
 
   createReadStream(asset.thumbPath).pipe(res);
@@ -1808,14 +1797,14 @@ async function handleAssetThumbnail(req, res, sessionId, assetId) {
 async function handleAssetStream(req, res, sessionId, assetId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
 
   const asset = session.assets.get(assetId);
   if (!asset || !existsSync(asset.path)) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Asset not found' }));
     return;
   }
@@ -1865,7 +1854,6 @@ async function handleAssetStream(req, res, sessionId, assetId) {
       // Requested range is completely outside file - return 416
       res.writeHead(416, {
         'Content-Range': `bytes */${fileSize}`,
-        'Access-Control-Allow-Origin': '*',
       });
       res.end();
       return;
@@ -1884,7 +1872,6 @@ async function handleAssetStream(req, res, sessionId, assetId) {
       'Accept-Ranges': 'bytes',
       'Content-Length': chunkSize,
       'Content-Type': contentType,
-      'Access-Control-Allow-Origin': '*',
     });
 
     createReadStream(asset.path, { start, end }).pipe(res);
@@ -1892,7 +1879,6 @@ async function handleAssetStream(req, res, sessionId, assetId) {
     res.writeHead(200, {
       'Content-Length': fileSize,
       'Content-Type': contentType,
-      'Access-Control-Allow-Origin': '*',
     });
     createReadStream(asset.path).pipe(res);
   }
@@ -1902,7 +1888,7 @@ async function handleAssetStream(req, res, sessionId, assetId) {
 function handleProjectGet(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
@@ -1911,12 +1897,12 @@ function handleProjectGet(req, res, sessionId) {
   if (!existsSync(session.dir)) {
     console.log(`[Session] Directory missing for ${sessionId}, cleaning up`);
     sessions.delete(sessionId);
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session files no longer exist' }));
     return;
   }
 
-  res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+  res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({
     tracks: session.project.tracks,
     clips: session.project.clips,
@@ -1928,7 +1914,7 @@ function handleProjectGet(req, res, sessionId) {
 async function handleProjectSave(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
@@ -1948,11 +1934,11 @@ async function handleProjectSave(req, res, sessionId) {
 
     console.log(`[${sessionId}] Project saved: ${session.project.clips.length} clips`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ success: true }));
 
   } catch (error) {
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -1961,7 +1947,7 @@ async function handleProjectSave(req, res, sessionId) {
 async function handleProjectRender(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
@@ -1976,7 +1962,7 @@ async function handleProjectRender(req, res, sessionId) {
     const settings = session.project.settings;
 
     if (clips.length === 0) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'No clips in timeline' }));
       return;
     }
@@ -2137,7 +2123,7 @@ async function handleProjectRender(req, res, sessionId) {
     console.log(`[${sessionId}] Render complete: ${(outputStats.size / 1024 / 1024).toFixed(1)} MB`);
     console.log(`[${sessionId}] === RENDER COMPLETE ===\n`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       path: outputPath,
@@ -2148,7 +2134,7 @@ async function handleProjectRender(req, res, sessionId) {
 
   } catch (error) {
     console.error(`[${sessionId}] Render error:`, error.message);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -2157,7 +2143,7 @@ async function handleProjectRender(req, res, sessionId) {
 async function handleRenderDownload(req, res, sessionId, renderType) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
@@ -2178,7 +2164,7 @@ async function handleRenderDownload(req, res, sessionId, renderType) {
   }
 
   if (!renderFile) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Render not found' }));
     return;
   }
@@ -2193,7 +2179,6 @@ async function handleRenderDownload(req, res, sessionId, renderType) {
     'Content-Type': 'video/mp4',
     'Content-Length': stats.size,
     'Content-Disposition': `attachment; filename="${filename}"`,
-    'Access-Control-Allow-Origin': '*',
   });
 
   createReadStream(renderPath).pipe(res);
@@ -2203,7 +2188,7 @@ async function handleRenderDownload(req, res, sessionId, renderType) {
 async function handleCreateGif(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
@@ -2224,13 +2209,13 @@ async function handleCreateGif(req, res, sessionId) {
 
     const sourceAsset = session.assets.get(sourceAssetId);
     if (!sourceAsset) {
-      res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(404, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Source asset not found' }));
       return;
     }
 
     if (sourceAsset.type !== 'image') {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Source must be an image' }));
       return;
     }
@@ -2339,7 +2324,7 @@ async function handleCreateGif(req, res, sessionId) {
     console.log(`[${jobId}] GIF created: ${(stats.size / 1024).toFixed(1)} KB`);
     console.log(`[${jobId}] === GIF CREATION COMPLETE ===\n`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       asset: {
@@ -2356,7 +2341,7 @@ async function handleCreateGif(req, res, sessionId) {
 
   } catch (error) {
     console.error(`[${sessionId}] GIF creation error:`, error.message);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -3002,7 +2987,7 @@ function extractNumericValue(valueStr) {
 async function handleTranscribe(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
@@ -3020,7 +3005,7 @@ async function handleTranscribe(req, res, sessionId) {
     const geminiKey = process.env.GEMINI_API_KEY;
 
     if (!hasLocalWhisper && !openaiKey && !geminiKey) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'No transcription method available. Install local Whisper (pip3 install openai-whisper) or set GEMINI_API_KEY in .dev.vars' }));
       return;
     }
@@ -3072,7 +3057,7 @@ async function handleTranscribe(req, res, sessionId) {
     }
 
     if (!videoAsset) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'No video asset found' }));
       return;
     }
@@ -3287,7 +3272,7 @@ Guidelines:
       console.error(`[${jobId}] Empty transcription - Gemini returned no words`);
       console.error(`[${jobId}] This could mean: no speech in video, audio too quiet, or unsupported language`);
 
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
         error: 'No speech detected. Make sure the video has clear, audible speech.',
         debug: {
@@ -3300,7 +3285,7 @@ Guidelines:
 
     console.log(`[${jobId}] === TRANSCRIPTION DONE ===\n`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       text: transcription.text || '',
@@ -3311,7 +3296,7 @@ Guidelines:
   } catch (error) {
     console.error(`[${jobId}] Error:`, error.message);
     try { unlinkSync(audioPath); } catch {}
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -3320,7 +3305,7 @@ Guidelines:
 async function handleTranscribeAndExtract(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
@@ -3345,7 +3330,7 @@ async function handleTranscribeAndExtract(req, res, sessionId) {
     }
 
     if (!videoAsset) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'No video asset found in session' }));
       return;
     }
@@ -3392,7 +3377,7 @@ async function handleTranscribeAndExtract(req, res, sessionId) {
     console.log(`[${jobId}] Downloaded ${gifAssets.length} GIFs`);
     console.log(`[${jobId}] === TRANSCRIPTION COMPLETE ===\n`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       transcript: transcription.text,
@@ -3402,7 +3387,7 @@ async function handleTranscribeAndExtract(req, res, sessionId) {
 
   } catch (error) {
     console.error(`[${jobId}] Error:`, error.message);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -3537,7 +3522,7 @@ Background: clean, uncluttered.`
 async function handleGenerateBroll(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
@@ -3550,7 +3535,7 @@ async function handleGenerateBroll(req, res, sessionId) {
     // Check for Gemini API key
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'GEMINI_API_KEY not configured in .dev.vars' }));
       return;
     }
@@ -3570,7 +3555,7 @@ async function handleGenerateBroll(req, res, sessionId) {
     }
 
     if (!videoAsset) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'No video asset found in session' }));
       return;
     }
@@ -3767,7 +3752,7 @@ async function handleGenerateBroll(req, res, sessionId) {
     console.log(`[${jobId}] Generated ${brollAssets.length}/${opportunities.length} B-roll images`);
     console.log(`[${jobId}] === B-ROLL GENERATION COMPLETE ===\n`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       transcript: transcription.text,
@@ -3777,7 +3762,7 @@ async function handleGenerateBroll(req, res, sessionId) {
 
   } catch (error) {
     console.error(`[${jobId}] Error:`, error.message);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -3790,7 +3775,7 @@ async function handleGenerateBroll(req, res, sessionId) {
 async function handleRenderMotionGraphic(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
@@ -3866,7 +3851,7 @@ async function handleRenderMotionGraphic(req, res, sessionId) {
     console.log(`[${jobId}] Motion graphic rendered: ${assetId}`);
     console.log(`[${jobId}] === RENDER COMPLETE ===\n`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       assetId,
@@ -3878,7 +3863,7 @@ async function handleRenderMotionGraphic(req, res, sessionId) {
 
   } catch (error) {
     console.error('Motion graphic render error:', error);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -3887,14 +3872,14 @@ async function handleRenderMotionGraphic(req, res, sessionId) {
 async function handleGenerateAnimation(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'GEMINI_API_KEY not configured' }));
     return;
   }
@@ -3904,7 +3889,7 @@ async function handleGenerateAnimation(req, res, sessionId) {
     const { description, videoAssetId, startTime, endTime, attachedAssetIds, fps = 30, width = 1920, height = 1080, durationSeconds } = body;
 
     if (!description) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'description is required' }));
       return;
     }
@@ -4564,7 +4549,7 @@ ${attachedAssetIds?.length ? `- IMPORTANT: Include media scenes to showcase the 
     console.log(`[${jobId}] AI animation rendered: ${assetId} (${durationInSeconds}s)`);
     console.log(`[${jobId}] === GENERATION COMPLETE ===\n`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       assetId,
@@ -4577,7 +4562,7 @@ ${attachedAssetIds?.length ? `- IMPORTANT: Include media scenes to showcase the 
 
   } catch (error) {
     console.error('AI animation generation error:', error);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -4587,14 +4572,14 @@ ${attachedAssetIds?.length ? `- IMPORTANT: Include media scenes to showcase the 
 async function handleEditAnimation(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'GEMINI_API_KEY not configured' }));
     return;
   }
@@ -4604,7 +4589,7 @@ async function handleEditAnimation(req, res, sessionId) {
     const { assetId, editPrompt, assets: availableAssets, v1Context, fps = 30, width = 1920, height = 1080 } = body;
 
     if (!assetId || !editPrompt) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'assetId and editPrompt are required' }));
       return;
     }
@@ -4612,13 +4597,13 @@ async function handleEditAnimation(req, res, sessionId) {
     // Get the original animation asset
     const originalAsset = session.assets.get(assetId);
     if (!originalAsset) {
-      res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(404, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Animation asset not found' }));
       return;
     }
 
     if (!originalAsset.aiGenerated) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Asset is not an AI-generated animation' }));
       return;
     }
@@ -4630,7 +4615,7 @@ async function handleEditAnimation(req, res, sessionId) {
     }
 
     if (!originalSceneData) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Original scene data not found - cannot edit this animation' }));
       return;
     }
@@ -4985,12 +4970,12 @@ Return ONLY the complete JSON structure with your minimal change applied. No mar
 
     console.log(`[${jobId}] Sending response:`, JSON.stringify(responseData, null, 2));
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(responseData));
 
   } catch (error) {
     console.error('Animation edit error:', error);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -4999,14 +4984,14 @@ Return ONLY the complete JSON structure with your minimal change applied. No mar
 async function handleGenerateImage(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
 
   const falApiKey = process.env.FAL_KEY || process.env.FAL_API_KEY;
   if (!falApiKey) {
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'FAL_KEY or FAL_API_KEY not configured in .dev.vars' }));
     return;
   }
@@ -5023,7 +5008,7 @@ async function handleGenerateImage(req, res, sessionId) {
     } = body;
 
     if (!prompt) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'prompt is required' }));
       return;
     }
@@ -5187,7 +5172,7 @@ Enhanced: "Ancient moss-covered forest with towering redwood trees, ethereal mor
     saveAssetMetadata(session); // Persist asset metadata to disk
     console.log(`[${jobId}] === PICASSO COMPLETE ===\n`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       images: generatedAssets,
@@ -5196,7 +5181,7 @@ Enhanced: "Ancient moss-covered forest with towering redwood trees, ethereal mor
 
   } catch (error) {
     console.error('Image generation error:', error);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -5205,14 +5190,14 @@ Enhanced: "Ancient moss-covered forest with towering redwood trees, ethereal mor
 async function handleGenerateVideo(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
 
   const falApiKey = process.env.FAL_KEY || process.env.FAL_API_KEY;
   if (!falApiKey) {
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'FAL_KEY or FAL_API_KEY not configured in .dev.vars' }));
     return;
   }
@@ -5224,13 +5209,13 @@ async function handleGenerateVideo(req, res, sessionId) {
     const { prompt, imageAssetId, duration = 5 } = body;
 
     if (!prompt) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'prompt is required' }));
       return;
     }
 
     if (!imageAssetId) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'imageAssetId is required' }));
       return;
     }
@@ -5238,7 +5223,7 @@ async function handleGenerateVideo(req, res, sessionId) {
     // Get the source image asset
     const imageAsset = session.assets.get(imageAssetId);
     if (!imageAsset || imageAsset.type !== 'image') {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Image asset not found' }));
       return;
     }
@@ -5413,7 +5398,7 @@ Output: "Epic reveal shot with slow cinematic zoom out, camera gently pulling ba
     console.log(`[${jobId}] Saved video: ${asset.filename} (${(stats.size / 1024 / 1024).toFixed(1)} MB)`);
     console.log(`[${jobId}] === DICAPRIO COMPLETE ===\n`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       video: {
@@ -5428,7 +5413,7 @@ Output: "Epic reveal shot with slow cinematic zoom out, camera gently pulling ba
   } catch (error) {
     console.error('Video generation error:', error);
     console.error('Error stack:', error.stack);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -5437,14 +5422,14 @@ Output: "Epic reveal shot with slow cinematic zoom out, camera gently pulling ba
 async function handleRestyleVideo(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
 
   const falApiKey = process.env.FAL_KEY || process.env.FAL_API_KEY;
   if (!falApiKey) {
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'FAL_KEY or FAL_API_KEY not configured in .dev.vars' }));
     return;
   }
@@ -5456,13 +5441,13 @@ async function handleRestyleVideo(req, res, sessionId) {
     const { prompt, videoAssetId } = body;
 
     if (!prompt) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'prompt is required' }));
       return;
     }
 
     if (!videoAssetId) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'videoAssetId is required' }));
       return;
     }
@@ -5470,7 +5455,7 @@ async function handleRestyleVideo(req, res, sessionId) {
     // Get the source video asset
     const videoAsset = session.assets.get(videoAssetId);
     if (!videoAsset || videoAsset.type !== 'video') {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Video asset not found' }));
       return;
     }
@@ -5643,7 +5628,7 @@ Return ONLY the enhanced prompt, no explanations.`
     console.log(`[${jobId}] Saved restyled video: ${asset.filename}`);
     console.log(`[${jobId}] === DICAPRIO RESTYLE COMPLETE ===\n`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       video: {
@@ -5657,7 +5642,7 @@ Return ONLY the enhanced prompt, no explanations.`
 
   } catch (error) {
     console.error('Video restyle error:', error);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -5666,14 +5651,14 @@ Return ONLY the enhanced prompt, no explanations.`
 async function handleRemoveVideoBg(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
 
   const falApiKey = process.env.FAL_KEY || process.env.FAL_API_KEY;
   if (!falApiKey) {
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'FAL_KEY or FAL_API_KEY not configured in .dev.vars' }));
     return;
   }
@@ -5683,7 +5668,7 @@ async function handleRemoveVideoBg(req, res, sessionId) {
     const { videoAssetId } = body;
 
     if (!videoAssetId) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'videoAssetId is required' }));
       return;
     }
@@ -5691,7 +5676,7 @@ async function handleRemoveVideoBg(req, res, sessionId) {
     // Get the source video asset
     const videoAsset = session.assets.get(videoAssetId);
     if (!videoAsset || videoAsset.type !== 'video') {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Video asset not found' }));
       return;
     }
@@ -5823,7 +5808,7 @@ async function handleRemoveVideoBg(req, res, sessionId) {
     console.log(`[${jobId}] Saved video: ${asset.filename}`);
     console.log(`[${jobId}] === DICAPRIO REMOVE BG COMPLETE ===\n`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       video: {
@@ -5837,7 +5822,7 @@ async function handleRemoveVideoBg(req, res, sessionId) {
 
   } catch (error) {
     console.error('Video background removal error:', error);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -5846,14 +5831,14 @@ async function handleRemoveVideoBg(req, res, sessionId) {
 async function handleGenerateBatchAnimations(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'GEMINI_API_KEY not configured' }));
     return;
   }
@@ -5876,7 +5861,7 @@ async function handleGenerateBatchAnimations(req, res, sessionId) {
     }
 
     if (!videoAsset) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'No video asset found in session' }));
       return;
     }
@@ -5888,7 +5873,7 @@ async function handleGenerateBatchAnimations(req, res, sessionId) {
     const transcription = await getOrTranscribeVideo(session, videoAsset, jobId);
 
     if (!transcription.text) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Could not transcribe video' }));
       return;
     }
@@ -6144,7 +6129,7 @@ Make it visually engaging with good color choices. Use 2-4 scenes for variety.`
     console.log(`[${jobId}] === BATCH GENERATION COMPLETE ===`);
     console.log(`[${jobId}] Generated ${generatedAnimations.length} animations\n`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       animations: generatedAnimations,
@@ -6153,7 +6138,7 @@ Make it visually engaging with good color choices. Use 2-4 scenes for variety.`
 
   } catch (error) {
     console.error('Batch animation generation error:', error);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -6163,14 +6148,14 @@ Make it visually engaging with good color choices. Use 2-4 scenes for variety.`
 async function handleAnalyzeForAnimation(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'GEMINI_API_KEY not configured' }));
     return;
   }
@@ -6196,7 +6181,7 @@ async function handleAnalyzeForAnimation(req, res, sessionId) {
     }
 
     if (!videoAsset) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'No video asset found to analyze' }));
       return;
     }
@@ -6473,7 +6458,7 @@ Feel free to add a GIF scene for reactions or emphasis when appropriate!`;
     console.log(`[${jobId}] === ANALYSIS COMPLETE (awaiting approval) ===\n`);
 
     // Return the concept for user approval (NOT rendered yet)
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       concept: {
@@ -6496,7 +6481,7 @@ Feel free to add a GIF scene for reactions or emphasis when appropriate!`;
 
   } catch (error) {
     console.error('Animation analysis error:', error);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -6505,7 +6490,7 @@ Feel free to add a GIF scene for reactions or emphasis when appropriate!`;
 async function handleRenderFromConcept(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
@@ -6515,7 +6500,7 @@ async function handleRenderFromConcept(req, res, sessionId) {
     const { concept, fps = 30, width = 1920, height = 1080 } = body;
 
     if (!concept || !concept.scenes || concept.scenes.length === 0) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'concept with scenes is required' }));
       return;
     }
@@ -6685,7 +6670,7 @@ async function handleRenderFromConcept(req, res, sessionId) {
     console.log(`[${jobId}] Animation rendered: ${assetId} (${durationInSeconds}s)`);
     console.log(`[${jobId}] === RENDER COMPLETE ===\n`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       assetId,
@@ -6699,7 +6684,7 @@ async function handleRenderFromConcept(req, res, sessionId) {
 
   } catch (error) {
     console.error('Render from concept error:', error);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -6709,14 +6694,14 @@ async function handleRenderFromConcept(req, res, sessionId) {
 async function handleGenerateTranscriptAnimation(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'GEMINI_API_KEY not configured' }));
     return;
   }
@@ -6735,7 +6720,7 @@ async function handleGenerateTranscriptAnimation(req, res, sessionId) {
     }
 
     if (!videoAsset) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'No video asset found in session' }));
       return;
     }
@@ -7031,7 +7016,7 @@ Pick phrases that are spread throughout the video. Each phrase should be 2-6 wor
     console.log(`[${jobId}] Transcript animation created: ${assetId}`);
     console.log(`[${jobId}] === TRANSCRIPT ANIMATION COMPLETE ===\n`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       assetId,
@@ -7045,7 +7030,7 @@ Pick phrases that are spread throughout the video. Each phrase should be 2-6 wor
 
   } catch (error) {
     console.error('Transcript animation error:', error);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -7055,14 +7040,14 @@ Pick phrases that are spread throughout the video. Each phrase should be 2-6 wor
 async function handleGenerateContextualAnimation(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'GEMINI_API_KEY not configured' }));
     return;
   }
@@ -7086,7 +7071,7 @@ async function handleGenerateContextualAnimation(req, res, sessionId) {
     }
 
     if (!videoAsset) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'No video asset found to analyze' }));
       return;
     }
@@ -7395,7 +7380,7 @@ Use specific terms, concepts, and themes from the transcript.`;
     console.log(`[${jobId}] Contextual ${type} animation rendered: ${outputAssetId} (${durationInSeconds}s)`);
     console.log(`[${jobId}] === CONTEXTUAL ANIMATION COMPLETE ===\n`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       assetId: outputAssetId,
@@ -7410,7 +7395,7 @@ Use specific terms, concepts, and themes from the transcript.`;
 
   } catch (error) {
     console.error('Contextual animation generation error:', error);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -7419,7 +7404,7 @@ Use specific terms, concepts, and themes from the transcript.`;
 async function handleExtractAudio(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
@@ -7429,20 +7414,20 @@ async function handleExtractAudio(req, res, sessionId) {
     const { assetId } = body;
 
     if (!assetId) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'assetId is required' }));
       return;
     }
 
     const videoAsset = session.assets.get(assetId);
     if (!videoAsset) {
-      res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(404, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Asset not found' }));
       return;
     }
 
     if (videoAsset.type !== 'video') {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Asset must be a video' }));
       return;
     }
@@ -7542,7 +7527,7 @@ async function handleExtractAudio(req, res, sessionId) {
     console.log(`[${jobId}] ✓ Muted video created: ${mutedAsset.filename}`);
     console.log(`[${jobId}] === EXTRACT AUDIO COMPLETE ===\n`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       audioAsset: {
@@ -7565,7 +7550,7 @@ async function handleExtractAudio(req, res, sessionId) {
 
   } catch (error) {
     console.error('Extract audio error:', error);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -7574,7 +7559,7 @@ async function handleExtractAudio(req, res, sessionId) {
 async function handleProcessAsset(req, res, sessionId) {
   const session = getSession(sessionId);
   if (!session) {
-    res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Session not found' }));
     return;
   }
@@ -7584,14 +7569,14 @@ async function handleProcessAsset(req, res, sessionId) {
     const { assetId, command } = body;
 
     if (!assetId || !command) {
-      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'assetId and command are required' }));
       return;
     }
 
     const asset = session.assets.get(assetId);
     if (!asset) {
-      res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(404, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Asset not found' }));
       return;
     }
@@ -7599,7 +7584,7 @@ async function handleProcessAsset(req, res, sessionId) {
     // Verify the asset file actually exists on disk
     if (!existsSync(asset.path)) {
       console.error(`[ProcessAsset] Asset file missing: ${asset.path}`);
-      res.writeHead(410, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(410, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({
         error: 'Asset file no longer exists. The session may have expired. Please re-upload your video.',
         code: 'ASSET_FILE_MISSING'
@@ -7688,7 +7673,7 @@ async function handleProcessAsset(req, res, sessionId) {
     console.log(`[${jobId}] Asset processed: ${newAssetId} (${duration.toFixed(2)}s)`);
     console.log(`[${jobId}] === PROCESSING COMPLETE ===\n`);
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       success: true,
       assetId: newAssetId,
@@ -7700,7 +7685,7 @@ async function handleProcessAsset(req, res, sessionId) {
 
   } catch (error) {
     console.error('Process asset error:', error);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -7716,7 +7701,7 @@ function handleSettingsGet(req, res) {
     FAL_KEY: !!(process.env.FAL_KEY || process.env.FAL_API_KEY),
   };
 
-  res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+  res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(settings));
 }
 
@@ -7794,12 +7779,12 @@ async function handleSettingsSave(req, res) {
     writeFileSync(envPath, finalContent);
     console.log('[Settings] Updated .dev.vars');
 
-    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ success: true }));
 
   } catch (error) {
     console.error('Settings save error:', error);
-    res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -7808,10 +7793,20 @@ async function handleSettingsSave(req, res) {
 
 const server = http.createServer(async (req, res) => {
   // CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin;
+  if (
+    origin === 'null' ||
+    (origin && (origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')))
+  ) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  } else {
+    // Fallback for requests without Origin header
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
+
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-Job-Token');
+  res.setHeader('Access-Control-Expose-Headers', 'Content-Disposition, X-Removed-Duration, X-Original-Duration, X-New-Duration');
 
   if (req.method === 'OPTIONS') {
     res.writeHead(204);
