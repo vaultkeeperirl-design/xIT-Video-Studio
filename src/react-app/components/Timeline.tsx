@@ -150,6 +150,19 @@ export default function Timeline({
     [tracks]
   );
 
+  // ⚡ Bolt: Group clips by trackId to optimize retrieval from O(T*C) to O(T+C)
+  // This avoids multiple O(N) filters over the full clips array during rendering
+  const clipsByTrack = useMemo(() => {
+    const map = new Map<string, TimelineClipType[]>();
+    for (let i = 0; i < clips.length; i++) {
+      const clip = clips[i];
+      const trackClips = map.get(clip.trackId) || [];
+      trackClips.push(clip);
+      map.set(clip.trackId, trackClips);
+    }
+    return map;
+  }, [clips]);
+
   // ⚡ Bolt: Use a ref for current time to avoid recreating snap points on every frame
   // This prevents O(N^2) array creation and O(N) re-renders of TimelineClip during playback
   const currentTimeRef = useRef(currentTime);
@@ -168,8 +181,8 @@ export default function Timeline({
 
   // Get clips for a specific track
   const getTrackClips = useCallback((trackId: string) =>
-    clips.filter(c => c.trackId === trackId),
-    [clips]
+    clipsByTrack.get(trackId) || [],
+    [clipsByTrack]
   );
 
   // Handle clicking on timeline to seek
@@ -458,7 +471,7 @@ export default function Timeline({
             className="flex-1 overflow-hidden"
           >
             {sortedTracks.map(track => {
-              const trackClipCount = clips.filter(c => c.trackId === track.id).length;
+              const trackClipCount = (clipsByTrack.get(track.id) || []).length;
               const isTextTrack = track.type === 'text' && trackClipCount > 0;
 
               let TrackIcon = Film;
@@ -491,9 +504,7 @@ export default function Timeline({
                       className="p-0.5 rounded hover:bg-red-500/20 hover:text-red-400 transition-colors flex-shrink-0 ml-auto mr-1"
                       onClick={() => {
                         if (confirm(`Delete all ${trackClipCount} captions on ${track.name}?`)) {
-                          clips
-                            .filter(c => c.trackId === track.id)
-                            .forEach(c => onDeleteClip(c.id));
+                          (clipsByTrack.get(track.id) || []).forEach(c => onDeleteClip(c.id));
                         }
                       }}
                     >
