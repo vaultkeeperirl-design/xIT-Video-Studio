@@ -27,33 +27,32 @@ export default function ClipPropertiesPanel({
   onUpdateTransform,
   onClose,
 }: ClipPropertiesPanelProps) {
-  if (!clip || !asset) {
-    return (
-      <div className="p-3 text-center text-zinc-500 text-xs">
-        Select a clip to edit its properties
-      </div>
-    );
-  }
-
-  const transform = clip.transform || {};
-
   const handleScaleChange = useCallback((value: number) => {
+    if (!clip) return;
+    const transform = clip.transform || {};
     onUpdateTransform(clip.id, { ...transform, scale: value });
-  }, [clip.id, transform, onUpdateTransform]);
+  }, [clip, onUpdateTransform]);
 
   const handleRotationChange = useCallback((value: number) => {
+    if (!clip) return;
+    const transform = clip.transform || {};
     onUpdateTransform(clip.id, { ...transform, rotation: value });
-  }, [clip.id, transform, onUpdateTransform]);
+  }, [clip, onUpdateTransform]);
 
   const handlePositionChange = useCallback((axis: 'x' | 'y', value: number) => {
+    if (!clip) return;
+    const transform = clip.transform || {};
     onUpdateTransform(clip.id, { ...transform, [axis]: value });
-  }, [clip.id, transform, onUpdateTransform]);
+  }, [clip, onUpdateTransform]);
 
   const handleCropChange = useCallback((side: 'cropTop' | 'cropBottom' | 'cropLeft' | 'cropRight', value: number) => {
+    if (!clip) return;
+    const transform = clip.transform || {};
     onUpdateTransform(clip.id, { ...transform, [side]: value });
-  }, [clip.id, transform, onUpdateTransform]);
+  }, [clip, onUpdateTransform]);
 
   const handleReset = useCallback(() => {
+    if (!clip) return;
     onUpdateTransform(clip.id, {
       x: 0,
       y: 0,
@@ -65,7 +64,17 @@ export default function ClipPropertiesPanel({
       cropLeft: 0,
       cropRight: 0,
     });
-  }, [clip.id, onUpdateTransform]);
+  }, [clip, onUpdateTransform]);
+
+  if (!clip || !asset) {
+    return (
+      <div className="p-3 text-center text-zinc-500 text-xs">
+        Select a clip to edit its properties
+      </div>
+    );
+  }
+
+  const transform = clip.transform || {};
 
   return (
     <div className="flex flex-col h-full">
