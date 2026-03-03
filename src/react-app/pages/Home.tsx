@@ -406,7 +406,9 @@ export default function Home() {
 
   // Handle asset upload
   const handleAssetUpload = useCallback(async (files: FileList) => {
-    for (const file of Array.from(files)) {
+    // ⚡ Bolt: Use a standard for loop instead of Array.from to prevent unnecessary intermediate array allocations
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
       try {
         const newAsset = await uploadAsset(file);
 

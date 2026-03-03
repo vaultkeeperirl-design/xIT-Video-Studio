@@ -426,7 +426,9 @@ const AIPromptPanel = forwardRef<AIPromptPanelHandle, AIPromptPanelProps>(({
 
     setIsUploadingAttachment(true);
     try {
-      for (const file of Array.from(files)) {
+      // ⚡ Bolt: Use a standard for loop instead of Array.from to prevent unnecessary intermediate array allocations
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
         // Only allow images and videos
         if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
           console.warn('Skipping non-image/video file:', file.name);
