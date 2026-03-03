@@ -189,6 +189,7 @@ export function useProject() {
   const [serverAvailable, setServerAvailable] = useState<boolean | null>(null);
 
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sessionCreatePromiseRef = useRef<Promise<SessionInfo> | null>(null);
 
   // Refs to track latest state values for saveProject (avoids stale closure issues)
   const tracksRef = useRef(tracks);
@@ -301,21 +302,34 @@ export function useProject() {
 
       // If no session yet, create one first
       if (!currentSession) {
-        const createResponse = await fetch(`${LOCAL_FFMPEG_URL}/session/create`, {
-          method: 'POST',
-        });
+        if (!sessionCreatePromiseRef.current) {
+          sessionCreatePromiseRef.current = (async () => {
+            try {
+              const createResponse = await fetch(`${LOCAL_FFMPEG_URL}/session/create`, {
+                method: 'POST',
+              });
 
-        if (!createResponse.ok) {
-          const error = await createResponse.json();
-          throw new Error(error.error || 'Failed to create session');
+              if (!createResponse.ok) {
+                const error = await createResponse.json();
+                throw new Error(error.error || 'Failed to create session');
+              }
+
+              const createResult = await createResponse.json();
+              const newSession = {
+                sessionId: createResult.sessionId,
+                createdAt: Date.now(),
+              };
+              // Note: setSession uses a functional update, but doesn't immediately update `session` variable in this closure
+              setSession(newSession);
+              return newSession;
+            } catch (err) {
+              console.error('[useProject] Failed to create session:', err);
+              sessionCreatePromiseRef.current = null;
+              throw err;
+            }
+          })();
         }
-
-        const createResult = await createResponse.json();
-        currentSession = {
-          sessionId: createResult.sessionId,
-          createdAt: Date.now(),
-        };
-        setSession(currentSession);
+        currentSession = await sessionCreatePromiseRef.current;
       }
 
       // Upload the asset
