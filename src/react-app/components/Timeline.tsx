@@ -171,12 +171,23 @@ export default function Timeline({
   }, [currentTime]);
 
   const getSnapPoints = useCallback((clipStart: number, clipEnd: number) => {
-    const points = [
-      0,
-      currentTimeRef.current,
-      ...clips.flatMap(c => [c.start, c.start + c.duration])
-    ];
-    return points.filter(p => p !== clipStart && p !== clipEnd).sort((a, b) => a - b);
+    // ⚡ Bolt: Use a standard for loop instead of flatMap, spread, and filter to prevent
+    // unnecessary intermediate array allocations, reducing garbage collection overhead.
+    const points = [0, currentTimeRef.current];
+
+    for (let i = 0; i < clips.length; i++) {
+      const clip = clips[i];
+      const end = clip.start + clip.duration;
+
+      if (clip.start !== clipStart && clip.start !== clipEnd) {
+        points.push(clip.start);
+      }
+      if (end !== clipStart && end !== clipEnd) {
+        points.push(end);
+      }
+    }
+
+    return points.sort((a, b) => a - b);
   }, [clips]);
 
   // Get clips for a specific track
