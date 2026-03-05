@@ -198,8 +198,8 @@ export default function AIImageLabPanel({
       {/* Header */}
       <div className="p-4 border-b border-zinc-800/50">
         <div className="flex items-center gap-2 mb-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-brand-400 to-amber-300 rounded-lg flex items-center justify-center">
-            <Palette className="w-4 h-4" />
+          <div className="w-8 h-8 bg-gradient-to-br from-brand-500 to-brand-400 rounded-lg flex items-center justify-center">
+            <Palette className="w-4 h-4 text-zinc-900" />
           </div>
           <h2 className="font-semibold">AI Image Lab</h2>
         </div>
@@ -235,8 +235,8 @@ export default function AIImageLabPanel({
             <div key={idx} className="space-y-2">
               {message.type === 'user' ? (
                 <div className="flex justify-end">
-                  <div className="bg-gradient-to-r from-brand-400 to-amber-300 rounded-lg px-3 py-2 max-w-[85%]">
-                    <p className="text-sm text-white">{message.text}</p>
+                  <div className="bg-gradient-to-r from-brand-500 to-brand-400 rounded-lg px-3 py-2 max-w-[85%]">
+                    <p className="text-sm text-zinc-900">{message.text}</p>
                   </div>
                 </div>
               ) : (
@@ -378,10 +378,10 @@ export default function AIImageLabPanel({
             <button
               type="submit"
               disabled={!prompt.trim() || isGenerating || !sessionId}
-              className="w-8 h-8 bg-gradient-to-r from-brand-400 to-amber-300 disabled:from-zinc-700 disabled:to-zinc-700 rounded-lg flex items-center justify-center transition-all hover:shadow-lg hover:shadow-brand-400/50 disabled:shadow-none"
+              className="w-8 h-8 bg-gradient-to-r from-brand-500 to-brand-400 disabled:from-zinc-700 disabled:to-zinc-700 rounded-lg flex items-center justify-center transition-all hover:shadow-lg hover:shadow-brand-400/50 disabled:shadow-none text-zinc-900 disabled:text-zinc-500"
             >
               {isGenerating ? (
-                <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-zinc-900/20 border-t-zinc-900 rounded-full animate-spin" />
               ) : (
                 <Send className="w-4 h-4" />
               )}
