@@ -25,6 +25,7 @@ xIT is a standalone portable Windows application. No installation is required.
 
 *   **Frontend:** React 19, TailwindCSS, Vite.
 *   **Backend/Processing:** Local Node.js server (`scripts/local-ffmpeg-server.js`) spawning FFmpeg processes.
+*   **Session Management:** To prevent race conditions during bulk file uploads (e.g., drag-and-drop), the client uses a shared promise acting as a singleton for session creation (`/session/create`). This ensures concurrent upload requests all bind to a single active backend session, avoiding orphaned processing state.
 *   **Auto-Reframe (Face Tracking):** A hybrid architecture utilizing Python with `mediapipe` (via the local Node server) for tracking data, combined with mathematically derived client-side CSS transforms to dynamically keep the subject centered when exporting 16:9 content to 9:16 vertical formats without black bars.
 *   **Rendering:** Remotion for programmatic video creation.
 *   **Wrapper:** Electron for desktop integration.

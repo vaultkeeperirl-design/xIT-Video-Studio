@@ -275,7 +275,20 @@ export function useProject() {
     return sessionInfo;
   }, []);
 
-  // Upload asset
+  /**
+   * Uploads an asset to the local FFmpeg server and adds it to the project.
+   *
+   * **Why this uses a shared promise (`sessionCreatePromiseRef`):**
+   * When multiple files are dropped into the application simultaneously (e.g., dragging 5 videos),
+   * `uploadAsset` is called concurrently 5 times. If no session exists, all 5 calls would
+   * race to create a new session, resulting in 5 separate `/session/create` requests and
+   * orphaned state. The `sessionCreatePromiseRef` acts as a mutex/singleton: the first call
+   * initiates the request and stores the promise, while subsequent concurrent calls `await`
+   * that exact same promise. This ensures all files upload to the single, newly created session.
+   *
+   * @param file - The file object from a drag-and-drop or file input event.
+   * @returns A promise that resolves to the newly created Asset metadata.
+   */
   const uploadAsset = useCallback(async (file: File): Promise<Asset> => {
     if (file.size === 0) {
       throw new Error('File is empty');
