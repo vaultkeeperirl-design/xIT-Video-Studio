@@ -983,7 +983,16 @@ export function useProject() {
   // Get total project duration
   const getDuration = useCallback((): number => {
     if (clips.length === 0) return 0;
-    return Math.max(...clips.map((c: TimelineClip) => c.start + c.duration));
+    // ⚡ Bolt: Use a standard for loop instead of Math.max(...clips.map(...))
+    // This prevents creating intermediate arrays and hitting argument length limits on huge projects.
+    let max = 0;
+    for (let i = 0; i < clips.length; i++) {
+      const end = clips[i].start + clips[i].duration;
+      if (end > max) {
+        max = end;
+      }
+    }
+    return max;
   }, [clips]);
 
   // Create animated GIF from an image asset
