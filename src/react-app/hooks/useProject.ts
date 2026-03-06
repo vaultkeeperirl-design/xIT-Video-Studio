@@ -497,6 +497,15 @@ export function useProject() {
   // Delete clip (with optional ripple/autosnap to shift subsequent clips)
   const deleteClip = useCallback((clipId: string, ripple: boolean = false): void => {
     snapshotClips(); // Snapshot before deleting
+
+    // Clean up caption data if it exists for this clip
+    setCaptionData(prev => {
+      if (!prev[clipId]) return prev;
+      const newData = { ...prev };
+      delete newData[clipId];
+      return newData;
+    });
+
     setClipsInternal((prev: TimelineClip[]) => {
       const clipToDelete = prev.find(c => c.id === clipId);
       if (!clipToDelete) return prev.filter(c => c.id !== clipId);
