@@ -104,7 +104,7 @@ export default function AssetLibrary({
           <button
             onClick={handleFileSelect}
             disabled={uploading}
-            className="p-1.5 bg-brand-600 hover:bg-brand-500 disabled:opacity-50 disabled:cursor-not-allowed rounded text-xs transition-colors"
+            className="p-1.5 bg-brand-600 hover:bg-brand-500 disabled:opacity-50 disabled:cursor-not-allowed rounded text-xs text-zinc-900 transition-colors"
             title="Import files"
           >
             <Plus className="w-3.5 h-3.5" />

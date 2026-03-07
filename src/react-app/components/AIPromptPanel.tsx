@@ -2445,7 +2445,7 @@ const AIPromptPanel = forwardRef<AIPromptPanelHandle, AIPromptPanelProps>(({
               {message.type === 'user' ? (
                 <div className="flex justify-end">
                   <div className="bg-gradient-to-r from-brand-500 to-brand-400 rounded-lg px-3 py-2 max-w-[85%]">
-                    <p className="text-sm text-white">{message.text}</p>
+                    <p className="text-sm text-zinc-900">{message.text}</p>
                   </div>
                 </div>
               ) : (
@@ -2572,7 +2572,7 @@ const AIPromptPanel = forwardRef<AIPromptPanelHandle, AIPromptPanelProps>(({
                           <button
                             onClick={() => handleApplyEdit(message.command!, idx)}
                             disabled={isApplying || !hasVideo}
-                            className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-brand-500 to-brand-400 hover:from-brand-600 hover:to-brand-500 disabled:from-zinc-700 disabled:to-zinc-700 rounded-lg text-xs font-medium transition-all"
+                            className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-brand-500 to-brand-400 hover:from-brand-600 hover:to-brand-500 disabled:from-zinc-700 disabled:to-zinc-700 rounded-lg text-xs font-medium transition-all text-zinc-900 disabled:text-zinc-400"
                           >
                             {isApplying ? (
                               <>
@@ -3012,7 +3012,7 @@ const AIPromptPanel = forwardRef<AIPromptPanelHandle, AIPromptPanelProps>(({
             <button
               type="submit"
               disabled={!prompt.trim() || isProcessing || !hasVideo}
-              className="w-8 h-8 bg-gradient-to-r from-brand-500 to-brand-400 disabled:from-zinc-700 disabled:to-zinc-700 rounded-lg flex items-center justify-center transition-all hover:shadow-lg hover:shadow-brand-500/50 disabled:shadow-none"
+              className="w-8 h-8 bg-gradient-to-r from-brand-500 to-brand-400 disabled:from-zinc-700 disabled:to-zinc-700 rounded-lg flex items-center justify-center transition-all hover:shadow-lg hover:shadow-brand-500/50 disabled:shadow-none text-zinc-900 disabled:text-zinc-400"
             >
               {isProcessing ? (
                 <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
