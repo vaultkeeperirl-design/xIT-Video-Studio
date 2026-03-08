@@ -112,6 +112,10 @@ const TimelineClip = memo(function TimelineClip({
   useEffect(() => {
     if (!isDragging && !isResizingLeft && !isResizingRight) return;
 
+    // ⚡ Bolt: Cache snap points outside the mousemove handler to prevent
+    // O(N log N) work on every pixel moved (60+ times per second).
+    const snapPoints = getSnapPoints ? getSnapPoints(clip.start, clip.start + clip.duration) : [];
+
     const handleMouseMove = (e: MouseEvent) => {
       const deltaX = e.clientX - dragStartX;
       const deltaTime = deltaX / pixelsPerSecond;
@@ -124,8 +128,6 @@ const TimelineClip = memo(function TimelineClip({
         const currentEnd = newStart + clip.duration;
         let bestSnapStart = newStart;
         let minDiff = snapThreshold;
-
-        const snapPoints = getSnapPoints ? getSnapPoints(clip.start, clip.start + clip.duration) : [];
 
         for (const pt of snapPoints) {
           if (Math.abs(newStart - pt) < minDiff) {
@@ -181,7 +183,6 @@ const TimelineClip = memo(function TimelineClip({
 
         // Snapping for resize left
         const snapThreshold = 10 / pixelsPerSecond;
-        const snapPoints = getSnapPoints ? getSnapPoints(clip.start, clip.start + clip.duration) : [];
         for (const pt of snapPoints) {
           if (Math.abs(newStart - pt) < snapThreshold) {
             const snappedDelta = pt - initialStart;
@@ -207,7 +208,6 @@ const TimelineClip = memo(function TimelineClip({
 
         // Snapping for resize right
         const snapThreshold = 10 / pixelsPerSecond;
-        const snapPoints = getSnapPoints ? getSnapPoints(clip.start, clip.start + clip.duration) : [];
         for (const pt of snapPoints) {
           if (Math.abs(newEnd - pt) < snapThreshold) {
              const snappedDuration = pt - clip.start;

@@ -4,7 +4,7 @@
   "description": "An AI-powered video editor",
   "author": "xIT",
   "private": true,
-  "version": "1.0.19",
+  "version": "1.0.20",
   "main": "electron/main.js",
   "type": "module",
   "dependencies": {
@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.12.0",
-    "@eslint/js": "9.25.1",
+    "@eslint/js": "^9.25.1",
     "@getmocha/users-service": "^0.0.4",
     "@getmocha/vite-plugins": "latest",
     "@remotion/cli": "^4.0.409",
