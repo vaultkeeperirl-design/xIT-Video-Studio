@@ -391,6 +391,23 @@ export function useProject() {
 
     setAssets(prev => prev.filter(a => a.id !== assetId));
     snapshotClips(); // Snapshot before deleting associated clips
+
+    // Clean up caption data for clips associated with this asset
+    setCaptionData(prev => {
+      const clipsToDelete = clipsRef.current.filter(c => c.assetId === assetId);
+      if (clipsToDelete.length === 0) return prev;
+
+      const newData = { ...prev };
+      let changed = false;
+      for (const clip of clipsToDelete) {
+        if (newData[clip.id]) {
+          delete newData[clip.id];
+          changed = true;
+        }
+      }
+      return changed ? newData : prev;
+    });
+
     setClipsInternal((prev: TimelineClip[]) => prev.filter(c => c.assetId !== assetId));
   }, [session, snapshotClips, setClipsInternal]);
 
