@@ -269,17 +269,24 @@ export default function Home() {
       captionStyle?: CaptionStyle;
     }> = [];
 
+    // ⚡ Bolt: Single-pass filtering over activeClips to prevent O(6*N) loop iterations
+    // and multiple array allocations per render frame.
+    const activeAtPlayhead = [];
+    for (let i = 0; i < activeClips.length; i++) {
+      const clip = activeClips[i];
+      if (currentTime >= clip.start && currentTime < clip.start + clip.duration) {
+        activeAtPlayhead.push(clip);
+      }
+    }
+
     // Check video tracks (V1, V2, V3...)
     const videoTracks = ['V1', 'V2', 'V3'];
 
     for (const trackId of videoTracks) {
-      const clipsOnTrack = activeClips.filter(c =>
-        c.trackId === trackId &&
-        currentTime >= c.start &&
-        currentTime < c.start + c.duration
-      );
+      for (let i = 0; i < activeAtPlayhead.length; i++) {
+        const clip = activeAtPlayhead[i];
+        if (clip.trackId !== trackId) continue;
 
-      for (const clip of clipsOnTrack) {
         const asset = assetsById.get(clip.assetId);
         // Use asset.streamUrl which has cache-busting timestamp from refreshAssets
         const url = asset?.streamUrl || (asset ? getAssetStreamUrl(asset.id) : null);
@@ -303,13 +310,10 @@ export default function Home() {
     const audioTracks = ['A1', 'A2'];
 
     for (const trackId of audioTracks) {
-      const clipsOnTrack = activeClips.filter(c =>
-        c.trackId === trackId &&
-        currentTime >= c.start &&
-        currentTime < c.start + c.duration
-      );
+      for (let i = 0; i < activeAtPlayhead.length; i++) {
+        const clip = activeAtPlayhead[i];
+        if (clip.trackId !== trackId) continue;
 
-      for (const clip of clipsOnTrack) {
         const asset = assetsById.get(clip.assetId);
         const url = asset?.streamUrl || (asset ? getAssetStreamUrl(asset.id) : null);
         if (asset && url && asset.type === 'audio') {
@@ -327,13 +331,10 @@ export default function Home() {
     }
 
     // Check caption track (T1)
-    const captionClips = activeClips.filter(c =>
-      c.trackId === 'T1' &&
-      currentTime >= c.start &&
-      currentTime < c.start + c.duration
-    );
+    for (let i = 0; i < activeAtPlayhead.length; i++) {
+      const clip = activeAtPlayhead[i];
+      if (clip.trackId !== 'T1') continue;
 
-    for (const clip of captionClips) {
       const caption = getCaptionData(clip.id);
       if (caption) {
         // Words have relative timestamps (0 to chunk duration), so pass clip-relative time
