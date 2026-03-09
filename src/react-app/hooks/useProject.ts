@@ -634,7 +634,7 @@ export function useProject() {
       setCaptionData(prev => ({
         ...prev,
         [secondClip.id]: {
-          words: [...captionData[clipId].words],
+          words: captionData[clipId].words.map(w => ({ ...w })), // Deep copy words
           style: { ...captionData[clipId].style }
         }
       }));
@@ -642,6 +642,34 @@ export function useProject() {
 
     return secondClip.id;
   }, [clips, snapshotClips, setClipsInternal, captionData]);
+
+  // Duplicate a clip
+  const duplicateClip = useCallback((clipId: string): string | null => {
+    const clip = clips.find(c => c.id === clipId);
+    if (!clip) return null;
+
+    const duplicatedClip: TimelineClip = {
+      ...clip,
+      id: crypto.randomUUID(),
+      start: clip.start + clip.duration, // Place immediately after
+    };
+
+    snapshotClips(); // Snapshot before duplicating
+    setClipsInternal((prev: TimelineClip[]) => [...prev, duplicatedClip]);
+
+    // Copy caption data if it exists
+    if (captionData[clipId]) {
+      setCaptionData(prev => ({
+        ...prev,
+        [duplicatedClip.id]: {
+          words: captionData[clipId].words.map(w => ({ ...w })), // Deep copy words to prevent reference mutation
+          style: { ...captionData[clipId].style }
+        }
+      }));
+    }
+
+    return duplicatedClip.id;
+  }, [clips, captionData, snapshotClips, setClipsInternal]);
 
   // Create a new timeline tab for editing a clip/animation in isolation
   const createTimelineTab = useCallback((name: string, assetId: string, initialClips?: TimelineClip[]): string => {
@@ -1173,6 +1201,7 @@ export function useProject() {
     moveClip,
     resizeClip,
     splitClip,
+    duplicateClip,
 
     // History
     undo,

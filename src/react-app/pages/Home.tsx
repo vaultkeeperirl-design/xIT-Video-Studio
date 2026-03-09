@@ -77,6 +77,7 @@ export default function Home() {
     deleteClip,
     moveClip,
     splitClip,
+    duplicateClip,
     undo,
     redo,
     canUndo,
@@ -2129,7 +2130,7 @@ export default function Home() {
               onDropAsset={handleDropAsset}
               onSave={saveProject}
               getCaptionData={getCaptionData}
-              onDuplicate={() => {}}
+              onDuplicate={() => selectedClipId && duplicateClip(selectedClipId)}
               onUndo={canUndo ? undo : undefined}
               onRedo={canRedo ? redo : undefined}
               onAutoReframe={handleAutoReframeToggle}
