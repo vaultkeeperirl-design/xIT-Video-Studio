@@ -629,15 +629,37 @@ export function useProject() {
       secondClip,
     ]);
 
-    // Copy caption data if it exists
+    // Handle caption data split if it exists
     if (captionData[clipId]) {
-      setCaptionData(prev => ({
-        ...prev,
-        [secondClip.id]: {
-          words: captionData[clipId].words.map(w => ({ ...w })), // Deep copy words
-          style: { ...captionData[clipId].style }
-        }
-      }));
+      setCaptionData(prev => {
+        const originalCaptionData = prev[clipId];
+
+        // Filter words that fall into the first clip
+        const firstWords = originalCaptionData.words
+          .filter(w => w.start < timeInClip)
+          .map(w => ({ ...w }));
+
+        // Filter words that fall into the second clip, adjusting their timestamps relative to the new start
+        const secondWords = originalCaptionData.words
+          .filter(w => w.start >= timeInClip)
+          .map(w => ({
+            ...w,
+            start: w.start - timeInClip,
+            end: w.end - timeInClip,
+          }));
+
+        return {
+          ...prev,
+          [clipId]: {
+            ...originalCaptionData,
+            words: firstWords,
+          },
+          [secondClip.id]: {
+            words: secondWords,
+            style: { ...originalCaptionData.style },
+          },
+        };
+      });
     }
 
     return secondClip.id;
