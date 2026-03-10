@@ -928,6 +928,25 @@ const AIPromptPanel = forwardRef<AIPromptPanelHandle, AIPromptPanelProps>(({
     selectedAiAnimationAssetId?: string;
   }
 
+  /**
+   * Determines the most appropriate video editing workflow based on user intent and current application context.
+   *
+   * **Why this exists:**
+   * Natural language prompts are inherently ambiguous. A prompt like "make it bigger" could mean
+   * scaling a video clip or enlarging text in a Remotion animation. This function acts as a smart router,
+   * combining regex-based intent parsing with state-aware context to disambiguate the request.
+   *
+   * **How routing works:**
+   * 1. **Context-Aware Decisions (Highest Priority):** Evaluates *where* the user is and *what* is selected.
+   *    If the user is on an animation edit tab (`isOnEditTab`) or has an AI animation selected on the main timeline
+   *    (`selectedClipIsAiAnimation`), general verbs like "edit", "change", or "zoom" are assumed to target
+   *    the animation (`edit-animation`), rather than defaulting to creating a new one or applying a generic FFmpeg filter.
+   * 2. **Intent-Based Decisions:** If no specific context overrides apply, the function falls back to analyzing
+   *    the prompt for specific keywords matching distinct workflows (e.g., "dead air", "caption", "extract audio").
+   *
+   * @param {AssistantContext} ctx - The state context when the prompt was submitted. Includes the raw prompt text, UI state (like active tabs), and metadata about selected clips.
+   * @returns {WorkflowType} The identified workflow type to execute.
+   */
   const determineWorkflow = (ctx: AssistantContext): WorkflowType => {
     const lower = ctx.prompt.toLowerCase();
 

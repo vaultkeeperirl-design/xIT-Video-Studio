@@ -23,6 +23,7 @@ xIT is a standalone portable Windows application. No installation is required.
 
 ## Architecture
 
+*   **Smart Assistant Routing:** Uses context-aware heuristics (e.g., active timeline tab, selected assets) combined with intent parsing to dynamically route natural language prompts to specific editing workflows (like Remotion animations vs. FFmpeg video manipulation).
 *   **Frontend:** React 19, TailwindCSS, Vite.
 *   **Backend/Processing:** Local Node.js server (`scripts/local-ffmpeg-server.js`) spawning FFmpeg processes.
 *   **Session Management:** To prevent race conditions during bulk file uploads (e.g., drag-and-drop), the client uses a shared promise acting as a singleton for session creation (`/session/create`). This ensures concurrent upload requests all bind to a single active backend session, avoiding orphaned processing state.
