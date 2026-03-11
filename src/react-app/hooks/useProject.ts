@@ -408,6 +408,14 @@ export function useProject() {
       return changed ? newData : prev;
     });
 
+    // Clean up face tracking data associated with this asset
+    setFaceTrackingData(prev => {
+      if (!prev[assetId]) return prev;
+      const newData = { ...prev };
+      delete newData[assetId];
+      return newData;
+    });
+
     setClipsInternal((prev: TimelineClip[]) => prev.filter(c => c.assetId !== assetId));
   }, [session, snapshotClips, setClipsInternal]);
 
@@ -685,7 +693,7 @@ export function useProject() {
         ...prev,
         [duplicatedClip.id]: {
           words: captionData[clipId].words.map(w => ({ ...w })), // Deep copy words to prevent reference mutation
-          style: { ...captionData[clipId].style }
+          style: captionData[clipId].style ? { ...captionData[clipId].style } : undefined
         }
       }));
     }
