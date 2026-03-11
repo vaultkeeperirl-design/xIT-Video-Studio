@@ -280,21 +280,27 @@ export default function Home() {
       }
     }
 
-    // Check video tracks (V1, V2, V3...)
-    const videoTracks = ['V1', 'V2', 'V3'];
+    // ⚡ Bolt: Single-pass iteration to categorize all active clips by their track types.
+    // This replaces multiple O(N) loops over activeAtPlayhead (one for each track),
+    // significantly reducing loop overhead during the high-frequency getPreviewLayers render loop.
+    const v1Layers = [];
+    const v2Layers = [];
+    const v3Layers = [];
+    const a1Layers = [];
+    const a2Layers = [];
+    const t1Layers = [];
 
-    for (const trackId of videoTracks) {
-      for (let i = 0; i < activeAtPlayhead.length; i++) {
-        const clip = activeAtPlayhead[i];
-        if (clip.trackId !== trackId) continue;
+    for (let i = 0; i < activeAtPlayhead.length; i++) {
+      const clip = activeAtPlayhead[i];
 
+      if (clip.trackId === 'V1' || clip.trackId === 'V2' || clip.trackId === 'V3') {
         const asset = assetsById.get(clip.assetId);
         // Use asset.streamUrl which has cache-busting timestamp from refreshAssets
         const url = asset?.streamUrl || (asset ? getAssetStreamUrl(asset.id) : null);
         if (asset && url) {
           // Calculate the time within the clip (accounting for in-point)
           const clipTime = (currentTime - clip.start) + (clip.inPoint || 0);
-          layers.push({
+          const layerObj = {
             id: clip.id,
             url,
             type: asset.type,
@@ -302,55 +308,53 @@ export default function Home() {
             clipTime,
             clipStart: clip.start,
             transform: clip.transform,
-          });
+          };
+
+          if (clip.trackId === 'V1') v1Layers.push(layerObj);
+          else if (clip.trackId === 'V2') v2Layers.push(layerObj);
+          else if (clip.trackId === 'V3') v3Layers.push(layerObj);
         }
-      }
-    }
-
-    // Check audio tracks (A1, A2)
-    const audioTracks = ['A1', 'A2'];
-
-    for (const trackId of audioTracks) {
-      for (let i = 0; i < activeAtPlayhead.length; i++) {
-        const clip = activeAtPlayhead[i];
-        if (clip.trackId !== trackId) continue;
-
+      } else if (clip.trackId === 'A1' || clip.trackId === 'A2') {
         const asset = assetsById.get(clip.assetId);
         const url = asset?.streamUrl || (asset ? getAssetStreamUrl(asset.id) : null);
         if (asset && url && asset.type === 'audio') {
           const clipTime = (currentTime - clip.start) + (clip.inPoint || 0);
-          layers.push({
+          const layerObj = {
             id: clip.id,
             url,
-            type: 'audio',
+            type: 'audio' as const,
             trackId: clip.trackId,
             clipTime,
             clipStart: clip.start,
+          };
+          if (clip.trackId === 'A1') a1Layers.push(layerObj);
+          else if (clip.trackId === 'A2') a2Layers.push(layerObj);
+        }
+      } else if (clip.trackId === 'T1') {
+        const caption = getCaptionData(clip.id);
+        if (caption) {
+          // Words have relative timestamps (0 to chunk duration), so pass clip-relative time
+          t1Layers.push({
+            id: clip.id,
+            url: '',
+            type: 'caption' as const,
+            trackId: clip.trackId,
+            clipTime: currentTime - clip.start, // Convert to clip-relative time
+            clipStart: clip.start,
+            captionWords: caption.words,
+            captionStyle: caption.style,
           });
         }
       }
     }
 
-    // Check caption track (T1)
-    for (let i = 0; i < activeAtPlayhead.length; i++) {
-      const clip = activeAtPlayhead[i];
-      if (clip.trackId !== 'T1') continue;
-
-      const caption = getCaptionData(clip.id);
-      if (caption) {
-        // Words have relative timestamps (0 to chunk duration), so pass clip-relative time
-        layers.push({
-          id: clip.id,
-          url: '',
-          type: 'caption',
-          trackId: clip.trackId,
-          clipTime: currentTime - clip.start, // Convert to clip-relative time
-          clipStart: clip.start,
-          captionWords: caption.words,
-          captionStyle: caption.style,
-        });
-      }
-    }
+    // Preserve original track order (V1, V2, V3, A1, A2, T1) by concatenating the layer arrays
+    for (let i = 0; i < v1Layers.length; i++) layers.push(v1Layers[i]);
+    for (let i = 0; i < v2Layers.length; i++) layers.push(v2Layers[i]);
+    for (let i = 0; i < v3Layers.length; i++) layers.push(v3Layers[i]);
+    for (let i = 0; i < a1Layers.length; i++) layers.push(a1Layers[i]);
+    for (let i = 0; i < a2Layers.length; i++) layers.push(a2Layers[i]);
+    for (let i = 0; i < t1Layers.length; i++) layers.push(t1Layers[i]);
 
     return layers;
   }, [previewAssetId, assetsById, activeClips, currentTime, getAssetStreamUrl, getCaptionData]);
