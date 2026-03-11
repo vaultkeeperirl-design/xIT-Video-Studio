@@ -595,7 +595,25 @@ export function useProject() {
     }));
   }, [setClipsInternal]);
 
-  // Split clip at a specific time, creating two clips
+  /**
+   * Splits a clip at a specific timeline timestamp into two independent clips.
+   *
+   * **Why this is complex:**
+   * 1. **Time Coordination:** Timeline time (`splitTime`) must be mapped to the clip's local time
+   *    (`timeInClip`). The new clip's `inPoint` must accurately reflect the exact frame of the source
+   *    asset where the split occurred.
+   * 2. **Caption Synchronization:** In `captionData`, word timestamps (`start`, `end`) are stored
+   *    relative to the clip's local start (0s). When splitting:
+   *    - The first clip's words remain relative to 0s.
+   *    - The second clip's words must be shifted backward by `-timeInClip` so they remain
+   *      relative to the new clip's start.
+   * 3. **Immutability:** Operations generating new clips must explicitly deep clone nested objects
+   *    (like `captionData.words` and `captionData.style`) to prevent unintended reference mutations.
+   *
+   * @param clipId - The ID of the clip to split.
+   * @param splitTime - The global timeline timestamp where the split should occur.
+   * @returns The ID of the newly created second clip, or null if the split is invalid (e.g., too close to edges).
+   */
   const splitClip = useCallback((clipId: string, splitTime: number): string | null => {
     const clip = clips.find(c => c.id === clipId);
     if (!clip) return null;
