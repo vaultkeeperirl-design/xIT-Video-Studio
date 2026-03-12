@@ -237,7 +237,6 @@ const AIPromptPanel = forwardRef<AIPromptPanelHandle, AIPromptPanelProps>(({
   const [processingStatus, setProcessingStatus] = useState('');
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [showCaptionOptions, setShowCaptionOptions] = useState(false);
-  const [showQuickActions, setShowQuickActions] = useState(false);
   const [showReferencePicker, setShowReferencePicker] = useState(false);
   const [selectedReferences, setSelectedReferences] = useState<TimelineReference[]>([]);
   const [showTimeRangePicker, setShowTimeRangePicker] = useState(false);
@@ -248,7 +247,6 @@ const AIPromptPanel = forwardRef<AIPromptPanelHandle, AIPromptPanelProps>(({
   const [isUploadingAttachment, setIsUploadingAttachment] = useState(false);
   const [isDragOverChat, setIsDragOverChat] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const quickActionsRef = useRef<HTMLDivElement>(null);
   const referencePickerRef = useRef<HTMLDivElement>(null);
   const timeRangePickerRef = useRef<HTMLDivElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -284,20 +282,6 @@ const AIPromptPanel = forwardRef<AIPromptPanelHandle, AIPromptPanelProps>(({
       aiGenerated: asset.aiGenerated,
     };
   })();
-
-  // Close quick actions when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (quickActionsRef.current && !quickActionsRef.current.contains(event.target as Node)) {
-        setShowQuickActions(false);
-      }
-    };
-
-    if (showQuickActions) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [showQuickActions]);
 
   // Close reference picker when clicking outside
   useEffect(() => {
@@ -2453,10 +2437,30 @@ const AIPromptPanel = forwardRef<AIPromptPanelHandle, AIPromptPanelProps>(({
       {/* Chat history */}
       <div className="flex-1 p-4 overflow-y-auto space-y-4">
         {chatHistory.length === 0 ? (
-          <div className="text-center text-sm text-zinc-500 py-8">
-            {hasVideo
-              ? "No edits yet. Use Quick Actions below to get started!"
-              : 'Upload a video first to start editing with AI'}
+          <div className="flex flex-col items-center justify-center min-h-[50%] pt-8 pb-4 text-center">
+            <Sparkles className="w-8 h-8 text-zinc-600 mb-3" />
+            <p className="text-sm text-zinc-400 mb-6">
+              {hasVideo
+                ? "No edits yet. Select a quick action below or type a request:"
+                : 'Upload a video first to start editing with AI'}
+            </p>
+            {hasVideo && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-sm">
+                {suggestions.map((suggestion, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      setPrompt(suggestion.text);
+                    }}
+                    className="flex items-center gap-2 px-3 py-2.5 bg-zinc-800/80 hover:bg-zinc-700/80 border border-zinc-700/50 hover:border-brand-500/30 rounded-xl text-xs text-left transition-all group"
+                  >
+                    <suggestion.icon className="w-4 h-4 text-zinc-500 group-hover:text-brand-400 transition-colors flex-shrink-0" />
+                    <span className="text-zinc-300 group-hover:text-zinc-200 leading-tight">{suggestion.text}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         ) : (
           chatHistory.map((message, idx) => (
@@ -2680,57 +2684,6 @@ const AIPromptPanel = forwardRef<AIPromptPanelHandle, AIPromptPanelProps>(({
 
       {/* Input */}
       <form onSubmit={handleSubmit} className="p-4 border-t border-zinc-800/50">
-        {/* Motion Graphics Button */}
-        <button
-          type="button"
-          onClick={() => setShowMotionGraphicsModal(true)}
-          disabled={!hasVideo || isProcessing}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 mb-2 rounded-lg text-sm font-medium transition-all bg-gradient-to-r from-brand-500/20 to-brand-400/20 hover:from-brand-500/30 hover:to-brand-400/30 text-brand-300 hover:text-brand-200 border border-brand-500/30 hover:border-brand-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <Wand2 className="w-4 h-4" />
-          Motion Graphics
-        </button>
-
-        {/* Quick Actions Popover */}
-        <div className="relative mb-3" ref={quickActionsRef}>
-          <button
-            type="button"
-            onClick={() => setShowQuickActions(!showQuickActions)}
-            disabled={!hasVideo || isProcessing}
-            className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
-              showQuickActions
-                ? 'bg-brand-500/20 text-brand-400 ring-1 ring-brand-500/50'
-                : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300 disabled:opacity-50 disabled:cursor-not-allowed'
-            }`}
-          >
-            <Zap className="w-4 h-4" />
-            Quick Actions
-            {showQuickActions && <X className="w-3 h-3 ml-auto" />}
-          </button>
-
-          {/* Popover Menu */}
-          {showQuickActions && (
-            <div className="absolute bottom-full left-0 right-0 mb-2 p-2 bg-zinc-800 border border-zinc-700 rounded-xl shadow-xl z-10 animate-in fade-in slide-in-from-bottom-2 duration-200">
-              <div className="grid grid-cols-2 gap-1.5">
-                {suggestions.map((suggestion, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => {
-                      setPrompt(suggestion.text);
-                      setShowQuickActions(false);
-                    }}
-                    className="flex items-center gap-2 px-3 py-2.5 bg-zinc-700/50 hover:bg-zinc-700 rounded-lg text-xs text-left transition-colors group"
-                  >
-                    <suggestion.icon className="w-4 h-4 text-zinc-400 group-hover:text-brand-400 transition-colors flex-shrink-0" />
-                    <span className="text-zinc-300 leading-tight">{suggestion.text}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
         {/* Selected References, Time Range, and Attached Assets Tags */}
         {(selectedReferences.length > 0 || timeRange || attachedAssets.length > 0) && (
           <div className="flex flex-wrap gap-1.5 mb-2">
@@ -2808,6 +2761,21 @@ const AIPromptPanel = forwardRef<AIPromptPanelHandle, AIPromptPanelProps>(({
           {/* Bottom Toolbar */}
           <div className="flex items-center justify-between px-2 pb-2">
             <div className="flex items-center gap-1">
+              {/* Motion Graphics Button */}
+              <button
+                type="button"
+                onClick={() => setShowMotionGraphicsModal(true)}
+                disabled={!hasVideo || isProcessing}
+                className={`p-1.5 rounded-md transition-all ${
+                  showMotionGraphicsModal
+                    ? 'bg-brand-500/20 text-brand-400'
+                    : 'hover:bg-zinc-700 text-zinc-400 hover:text-zinc-300 disabled:opacity-50'
+                }`}
+                title="Motion Graphics"
+              >
+                <Wand2 className="w-4 h-4" />
+              </button>
+
               {/* Reference Picker Button */}
               <div className="relative" ref={referencePickerRef}>
                 <button

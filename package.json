@@ -4,7 +4,7 @@
   "description": "An AI-powered video editor",
   "author": "xIT",
   "private": true,
-  "version": "1.1.4",
+  "version": "1.1.5",
   "main": "electron/main.js",
   "type": "module",
   "dependencies": {
@@ -70,10 +70,10 @@
     "png-to-ico": "^3.0.1",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.8.3",
+    "typescript": "^5.6.3",
     "typescript-eslint": "8.31.0",
     "vite": "^6.4.1",
-    "vitest": "^4.0.18",
+    "vitest": "^4.1.0",
     "wrangler": "^4.33.0"
   },
   "scripts": {
