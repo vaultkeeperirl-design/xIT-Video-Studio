@@ -154,7 +154,8 @@ export function useProject() {
     redo,
     canUndo,
     canRedo,
-    snapshot: snapshotClips
+    snapshot: snapshotClips,
+    clear: clearHistory
   } = useHistory<TimelineClip[]>([]);
 
   const [captionData, setCaptionData] = useState<Record<string, CaptionData>>({});
@@ -252,6 +253,10 @@ export function useProject() {
           setAssets([]);
           setClipsInternal([]);
           setCaptionData({});
+          setFaceTrackingData({});
+          setTimelineTabs([{ id: 'main', name: 'Main', type: 'main', clips: [] }]);
+          setActiveTabId('main');
+          clearHistory();
         }
       } catch (error) {
         // Server might be down - don't clear session yet
@@ -1176,7 +1181,12 @@ export function useProject() {
     setSession(null);
     setAssets([]);
     setClipsInternal([]);
-  }, [session, setClipsInternal]);
+    setCaptionData({});
+    setFaceTrackingData({});
+    setTimelineTabs([{ id: 'main', name: 'Main', type: 'main', clips: [] }]);
+    setActiveTabId('main');
+    clearHistory();
+  }, [session, setClipsInternal, clearHistory]);
 
   // Get system settings (API keys)
   const getSystemSettings = useCallback(async (): Promise<Record<string, boolean>> => {
