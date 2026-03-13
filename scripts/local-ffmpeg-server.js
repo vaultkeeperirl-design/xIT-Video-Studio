@@ -1982,10 +1982,14 @@ async function handleProjectRender(req, res, sessionId) {
       .filter(c => session.assets.get(c.assetId)?.type === 'audio');
 
     // Calculate total duration from all clips
-    const totalDuration = Math.max(
-      ...clips.map(c => c.start + c.duration),
-      0.1
-    );
+    let maxDuration = 0.1;
+    for (let i = 0; i < clips.length; i++) {
+      const clipEnd = clips[i].start + clips[i].duration;
+      if (clipEnd > maxDuration) {
+        maxDuration = clipEnd;
+      }
+    }
+    const totalDuration = maxDuration;
 
     // Build FFmpeg filter_complex
     const inputs = [];
