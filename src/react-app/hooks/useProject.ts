@@ -299,6 +299,10 @@ export function useProject() {
       throw new Error('File is empty');
     }
 
+    if (!file.name) {
+      throw new Error('File must have a name');
+    }
+
     // 500MB maximum file size
     if (file.size > 500 * 1024 * 1024) {
       throw new Error('File exceeds maximum size of 500MB');
