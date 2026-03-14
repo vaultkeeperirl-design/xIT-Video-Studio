@@ -9,6 +9,7 @@ describe('deleteAsset faceTrackingData', () => {
 
   it('removes faceTrackingData when asset is deleted', async () => {
     const { result } = renderHook(() => useProject());
+    expect(result.current).toBeDefined();
 
     // 1. Give it a valid session
     act(() => {
@@ -19,8 +20,8 @@ describe('deleteAsset faceTrackingData', () => {
     // re-render hook to pick up session
     const { result: r2 } = renderHook(() => useProject());
 
-    global.fetch = vi.fn().mockImplementation(async (url, options) => {
-      if (url.includes('/detect-faces')) {
+    global.fetch = vi.fn().mockImplementation(async (url) => {
+      if (typeof url === 'string' && url.includes('/detect-faces')) {
         return { ok: true, json: async () => ({ tracks: [{ id: 1 }] }) };
       }
       return { ok: true, json: async () => ({}) };

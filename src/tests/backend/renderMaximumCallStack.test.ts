@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import http from 'http';
 import { spawn } from 'child_process';
+import type { ChildProcess } from 'child_process';
 
 describe('Render Endpoint Maximum Call Stack', () => {
-  let serverProcess: any;
+  let serverProcess: ChildProcess;
 
   beforeAll(async () => {
     return new Promise((resolve) => {
@@ -36,7 +37,7 @@ describe('Render Endpoint Maximum Call Stack', () => {
 
     const sessionId = await createSession();
 
-    const updateProject = (id: string, clips: any[]) => new Promise<void>((resolve) => {
+    const updateProject = (id: string, clips: unknown[]) => new Promise<void>((resolve) => {
       const req = http.request(`http://localhost:3333/session/${id}/project`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },

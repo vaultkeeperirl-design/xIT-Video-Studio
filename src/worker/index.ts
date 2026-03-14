@@ -11,7 +11,7 @@ interface Env {
 }
 
 // In-memory store for pending requests (dev only)
-const pendingRequests = new Map<string, { status: string; result?: any; error?: string }>();
+const pendingRequests = new Map<string, { status: string; result?: unknown; error?: string }>();
 
 const app = new Hono<{ Bindings: Env }>();
 

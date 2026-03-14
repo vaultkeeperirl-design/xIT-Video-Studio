@@ -1,4 +1,4 @@
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { expect, test, vi, beforeEach, afterEach } from 'vitest';
 import { useProject } from '../react-app/hooks/useProject';
 

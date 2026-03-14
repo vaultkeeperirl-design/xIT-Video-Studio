@@ -9,6 +9,7 @@ describe('deleteAsset', () => {
 
   it('removes asset and its associated clips and their caption data', async () => {
     const { result } = renderHook(() => useProject());
+    expect(result.current).toBeDefined();
 
     // 1. Give it a valid session
     act(() => {
@@ -19,18 +20,16 @@ describe('deleteAsset', () => {
     // re-render hook to pick up session
     const { result: r2 } = renderHook(() => useProject());
 
-    global.fetch = vi.fn().mockImplementation(async (url, options) => {
+    global.fetch = vi.fn().mockImplementation(async () => {
       return { ok: true, json: async () => ({}) };
     });
 
     const assetId = 'test-asset-id';
-    let clipId = '';
 
     // 2. Add an asset and a clip pointing to it
     act(() => {
       // Create a clip manually via addClip (it'll assume it exists if we force it)
-      const clip = r2.current.addClip(assetId, 'V1', 0, 5);
-      clipId = clip.id;
+      r2.current.addClip(assetId, 'V1', 0, 5);
     });
 
     // 3. Add caption data for this clip manually
